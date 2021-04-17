@@ -4,3 +4,7 @@
 [submodule "safety_systems_app"]
 	path = safety_systems_app
 	url = git@github.com:jcmayoral/safety_systems_app.git
+[submodule "ROS-OSM-map-integration"]
+	path = ROS-OSM-map-integration
+	url = git@github.com:jcmayoral/ROS-OSM-map-integration.git
+	branch = customize
