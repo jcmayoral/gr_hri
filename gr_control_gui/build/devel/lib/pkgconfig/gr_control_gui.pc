@@ -1,8 +1,0 @@
-prefix=/home/jose/ros_ws/src/gr_navigation/gr_control/gr_control_gui/build/devel
-
-Name: gr_control_gui
-Description: Description of gr_control_gui
-Version: 0.9.4
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: rviz roscpp visualization_msgs geometry_msgs mongodb_store navigation_msgs tf2_geometry_msgs std_msgs gr_map_utils nav_msgs
