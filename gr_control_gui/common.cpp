@@ -2,7 +2,11 @@
 
 using namespace gr_control_gui;
 
-MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ){
+MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{}{
+  map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("temporal_topological_map", 1 );
+  region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
+  //collection and database as arguments to messageStoreProxy
+  message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
   main_layout_ = new QVBoxLayout();
   render_panel_ = new rviz::RenderPanel();
   controls_layout_ = new QGridLayout();
@@ -11,7 +15,6 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ){
   manager_ = new rviz::VisualizationManager( render_panel_ );
   render_panel_->initialize( manager_->getSceneManager(), manager_ );
 
-  std::cout << "C" << std::endl;
   // Create Subscribers
   rviz::Display* marker_display;
   marker_display = manager_->createDisplay( "rviz/MarkerArray", "topological_map", true );

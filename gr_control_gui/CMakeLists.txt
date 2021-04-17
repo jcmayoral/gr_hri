@@ -51,7 +51,7 @@ add_executable(online main_online.cpp)
 target_link_libraries(online online_gui)
 
 add_executable(offline main_offline.cpp)
-target_link_libraries(offline offline_gui)
+target_link_libraries(offline offline_gui common_gui)
 
 add_executable(common main_common.cpp)
 target_link_libraries(common common_gui)

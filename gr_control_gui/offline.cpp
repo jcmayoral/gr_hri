@@ -1,48 +1,11 @@
-/*
- * Copyright (c) 2012, Willow Garage, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Willow Garage, Inc. nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 #include <offline.h>
 
 using namespace gr_control_gui;
 // BEGIN_TUTORIAL
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
-  : QWidget( parent ), marker_array_(), nh_(), robot_radius_(2.0), current_row_(1), terrain_x_(1.0), terrain_y_(1.0),
-    storing_id_(""), id_maxnumberrows_(1), x_cells_{1}, y_cells_{1}
-{
-  map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("temporal_topological_map", 1 );
-  region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
-  reset_publisher_ = nh_.advertise<std_msgs::Time>("update_map", 1);
-  //collection and database as arguments to messageStoreProxy
-  message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
-
+  : MyCommonViz( parent ), marker_array_(), robot_radius_(2.0), current_row_(1), terrain_x_(1.0), terrain_y_(1.0),
+    storing_id_(""), id_maxnumberrows_(1), x_cells_{1}, y_cells_{1}{
   // Construct and lay out labels and slider controls.
   QLabel* width_label = new QLabel( "Y Terrain" );
   QSlider* width_slider = new QSlider( Qt::Horizontal );
@@ -54,39 +17,20 @@ MyViz::MyViz( QWidget* parent )
   height_slider->setMinimum( 1.0 );
   height_slider->setMaximum( 100.0 );
 
-  QLabel* column_label = new QLabel("Desired Row");
-  QSpinBox* column_spinbox = new QSpinBox;
-  column_spinbox->setRange(0, 100);
-  column_spinbox->setSingleStep(1);
-  column_spinbox->setValue(0);
-
   QPushButton* save_topological_map = new QPushButton ("Store Map");
   QPushButton* delete_topological_map = new QPushButton ("Delete Map");
 
   QPushButton* execute_map = new QPushButton ("Execute Map");
 
   QGridLayout* controls_layout = new QGridLayout();
-  controls_layout->addWidget( width_label, 0, 0 );
-  controls_layout->addWidget( width_slider, 0, 1 );
+  controls_layout->addWidget( width_label, 1, 0 );
+  controls_layout->addWidget( width_slider, 1, 1 );
 
-  controls_layout->addWidget( height_label, 1, 0 );
-  controls_layout->addWidget( height_slider, 1, 1 );
-  controls_layout->addWidget( column_label, 2, 0 );
-  controls_layout->addWidget( column_spinbox, 2, 1 );
+  controls_layout->addWidget( height_label, 2, 0 );
+  controls_layout->addWidget( height_slider, 2, 1 );
   controls_layout->addWidget( save_topological_map, 3, 0 );
-  controls_layout->addWidget( execute_map, 3, 1 );
-  controls_layout->addWidget( delete_topological_map, 3, 2 );
+  controls_layout->addWidget( delete_topological_map, 3, 1);
 
-
-  QLabel* time_to_go_label = new QLabel("Expected Time To Next Goal");
-  time_to_go = new QLabel("0");
-  QFont f( "Arial", 30, QFont::Bold);
-  time_to_go->setFont(f);
-  //time_to_go->setFixedHeight(50);
-  //time_to_go->setFixedWidth(50);
-
-  controls_layout->addWidget( time_to_go_label, 4, 0 );
-  controls_layout->addWidget( time_to_go, 4, 1 );
 
   QLabel* map_frame_label = new QLabel("Map Frame");
   QLineEdit* map_frame_edit = new QLineEdit();
@@ -107,11 +51,9 @@ MyViz::MyViz( QWidget* parent )
   // Make signal/slot connections.
   connect( width_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
   connect( height_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainX(  int)));
-  connect( execute_map, SIGNAL( released( )), this, SLOT( executeTopoMap( )));
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
 
-  connect( column_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setDesiredRow(int)));
   connect( map_frame_edit, SIGNAL(textChanged(QString)), this, SLOT(setFrame(QString)));
 
   // Next we initialize the main RViz classes.
@@ -170,30 +112,16 @@ MyViz::MyViz( QWidget* parent )
   height_slider->setValue( 2.0 );
   width_slider->setValue( 2.0 );
 
-  if (existsMap()){
-    ROS_ERROR_STREAM("This will overwrite the last map -> TODO add a function to load this map");
-    saveMap();
-  }  
-
   manager_->setFixedFrame(map_frame_.c_str());
   manager_->initialize();
   manager_->startUpdate();
   update_client_ = nh_.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
-  time_to_go_sub_ = nh_.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
 }
 
-void MyViz::timetogoCB(const std_msgs::Float32ConstPtr time2go){
-  time_to_go -> setText(QString::number(time2go->data));
-}
-
-// Destructor.
 MyViz::~MyViz()
 {
-  //deleteTopoMap();
-  time_to_go_sub_.shutdown();
   map_publisher_.shutdown();
   region_publisher_.shutdown();
-  reset_publisher_.shutdown();
   delete manager_;
 }
 
@@ -405,20 +333,6 @@ void MyViz::visualizeMap(){
   publishRegion();
 }
 
-bool MyViz::existsMap(){
-  std::ifstream myfile ("/tmp/lastmap_id.txt");
-  std::string line;
-  if (myfile.is_open())
-  {
-    std::getline (myfile,line);
-    std::cout << line << '\n';
-    storing_id_ = line;
-    myfile.close();
-    return true;
-  }
-  return false;
-}
-
 void MyViz::deleteTopoMap(){
     if (storing_id_.empty()){
       std::cout << "Map not detected" << std::endl;
@@ -439,15 +353,6 @@ void MyViz::saveMap(){
   //deleteTopoMap();
   topo_map.header.frame_id = map_frame_;
   topo_map.map_id = map_id;
-
-  //TODO this is a hack for the python mongodb implementation
-  //std::vector<std::string> fields;
-  //fields.push_back("map_id");
-  //fields.push_back("node");
-
-  //std::vector<std::string> ids;
-  //ids.push_back(map_id);
-  //ids.push_back(map_id);
 
   for (auto const & node : node_map_){
 
@@ -499,47 +404,4 @@ void MyViz::saveMap(){
 //
  id_maxnumberrows_ = (2*terrain_x_/robot_radius_)-1;
  std::cout << "Max Rows Idx "<< id_maxnumberrows_ << std::endl;
-}
-
-void MyViz::setDesiredRow(int row){
-  current_row_ = std::min(id_maxnumberrows_, row);
-
-  if (row < id_maxnumberrows_){
-    visualizeMap();
-  }
-  else{
-    ROS_ERROR("ERROR");
-  }
-}
-
-void MyViz::executeTopoMap(){
-  //std::thread worker_thread();
-  t1 = new std::thread(&MyViz::executeCycle, this, 0);
-  t1->detach();
-  ROS_INFO("MOTION EXECUTION FINISHED");
-}
-
-
-
-void MyViz::executeCycle(int cycle){
-  gr_map_utils::UpdateMap req;
-  boost::shared_ptr<std_msgs::Empty const> msg_pointer;
-  current_row_ = cycle;
-  ROS_INFO_STREAM("current row "<< cycle);
-  //deleteTopoMap();
-  ros::Duration(1.0).sleep();
-  visualizeMap();
-  saveMap();
-  reset_publisher_.publish(std_msgs::Time());
-  ros::Duration(1.0).sleep();
-  if(update_client_.call(req)){
-    ROS_INFO("Client Succeded");
-  }
-  std::cout << "Wait til finish" << std::endl;
-  msg_pointer =  ros::topic::waitForMessage<std_msgs::Empty>("/end_motion");
-
-  if (cycle < id_maxnumberrows_){
-    ROS_INFO("ROW FINISHED");
-    executeCycle(cycle + 1);
-  }
 }

@@ -26,6 +26,8 @@
 
 #include <gr_map_utils/UpdateMap.h>
 
+#include <mongodb_store/message_store.h>
+
 namespace rviz
 {
 class Display;
@@ -47,11 +49,14 @@ namespace gr_control_gui{
       //private Q_SLOTS:
       
     protected:
+      MapGenerator* map_utils_;
       QGridLayout* controls_layout_;
       QVBoxLayout* main_layout_;
       rviz::RenderPanel* render_panel_;
-
-    private:
+     	mongodb_store::MessageStoreProxy* message_store_;
+      ros::Publisher map_publisher_;
+      ros::Publisher region_publisher_;
+      ros::NodeHandle nh_;
       rviz::VisualizationManager* manager_;
   };
 };
