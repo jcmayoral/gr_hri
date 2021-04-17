@@ -1,3 +1,6 @@
 [submodule "safe_system_listener"]
 	path = safe_system_listener
 	url = git@github.com:jcmayoral/safe_system_listener.git
+[submodule "safety_systems_app"]
+	path = safety_systems_app
+	url = git@github.com:jcmayoral/safety_systems_app.git
