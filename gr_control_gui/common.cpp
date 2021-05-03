@@ -96,8 +96,16 @@ void MyCommonViz::loadMap(){
       BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
         load_map_ = *map;
       }
-      ROS_INFO_STREAM(load_map_);
+
+      robot_radius_ = load_map_.info.robot_radius;
+      terrain_y_ = load_map_.info.sizey;
+      terrain_x_ = load_map_.info.sizex;
+      x_cells_ =  ceil(terrain_x_/1);
+      y_cells_ =  ceil(terrain_y_/1);
+
+      ROS_INFO_STREAM(load_map_.info);
       ROS_ERROR("YEI");
+      visualizeMap();
       return;
     }
 

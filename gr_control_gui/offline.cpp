@@ -152,6 +152,11 @@ void MyViz::saveMap(){
   topo_map.info.sizey = terrain_y_;
   topo_map.info.robot_radius = robot_radius_;
 
+  std::ifstream in("/tmp/lastmap_id.txt");
+  //out << storing_id_;
+  in >> storing_id_;
+  in.close();  
+
   if (!storing_id_.empty()){
     std::vector<boost::shared_ptr<navigation_msgs::TopologicalMap > >aaa;
     message_store_->queryID<navigation_msgs::TopologicalMap>(storing_id_,aaa);
