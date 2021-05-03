@@ -30,43 +30,20 @@ namespace gr_control_gui{
       virtual ~MyViz();
 
       private Q_SLOTS:
-      void setTerrainY( int value);
-      void setTerrainX( int value);
       void setDesiredRow(int row);
       void executeTopoMap();
-      void visualizeMap();
-      void saveMap();
-      void deleteTopoMap();
       void setFrame(QString frame);
 
-      void publishRegion();
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
       void executeCycle(int cycle);
-      bool existsMap();
 
     private:
-      rviz::VisualizationManager* manager_;
-      rviz::RenderPanel* render_panel_;
-      MapGenerator* map_utils_;
       int x_cells_;
       int y_cells_;
       int current_row_;
-      ros::NodeHandle nh_;
-      ros::Publisher map_publisher_;
+      ros::Publisher online_map_publisher_;
       ros::Publisher reset_publisher_;
-      ros::Publisher region_publisher_;
       ros::ServiceClient update_client_;
-
-      double robot_radius_;
-      float terrain_y_;
-      float terrain_x_;
-      visualization_msgs::MarkerArray marker_array_;
-     	mongodb_store::MessageStoreProxy* message_store_;
-
-      NodeMap node_map_;
-      std::vector<Edges> edges_;
-
-      std::string storing_id_;
 
       QLabel* time_to_go;
       ros::Subscriber time_to_go_sub_;
@@ -74,7 +51,6 @@ namespace gr_control_gui{
 
       std::thread* t1;
 
-      std::string map_frame_;
   };
 };
   // END_TUTORIAL

@@ -5,8 +5,8 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-      id_maxnumberrows_(1){
-      ROS_INFO("OFFLINE CONTRUCTOR");
+      id_maxnumberrows_(1) {
+  ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct and lay out labels and slider controls.
   QLabel* width_label = new QLabel(
      "Y Terrain" );
@@ -43,9 +43,7 @@ MyViz::MyViz( QWidget* parent )
 
   // Construct and lay out render panel.
   //render_panel_ = new rviz::RenderPanel();
-  QVBoxLayout* main_layout = new QVBoxLayout;
   main_layout_->addLayout( controls_layout );
-  //main_layout->addWidget( render_panel_ );
 
   // Set the top-level layout for this MyViz widget.
   //setLayout( main_layout );
@@ -69,16 +67,14 @@ MyViz::MyViz( QWidget* parent )
 
 MyViz::~MyViz()
 {
-  map_publisher_.shutdown();
-  region_publisher_.shutdown();
-  delete manager_;
+  ROS_ERROR("D offline init");
+  ROS_ERROR("D offline end");
+
 }
 
 void MyViz::setFrame(QString frame){
   map_frame_ = frame.toStdString();
 }
-
-
 
 void MyViz::setTerrainY( int value){
   terrain_y_ = value;

@@ -5,7 +5,7 @@ using namespace gr_control_gui;
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(2.0),
                  x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0){
   ROS_INFO("COMMON CONTRUCTOR");
-  map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("temporal_topological_map", 1 );
+  map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
   //collection and database as arguments to messageStoreProxy
   message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
@@ -24,7 +24,7 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   rviz::Display* marker_display;
   marker_display = manager_->createDisplay( "rviz/MarkerArray", "topological_map", true );
   ROS_ASSERT( marker_display != NULL );
-  marker_display->subProp( "Marker Topic" )->setValue("temporal_topological_map");
+  marker_display->subProp( "Marker Topic" )->setValue("full_topological_map");
 
   rviz::Display* region_marker;
   region_marker = manager_->createDisplay( "rviz/Marker", "region_marker", true );
@@ -97,11 +97,14 @@ void MyCommonViz::loadMap(){
         load_map_ = *map;
       }
 
+      map_frame_ = load_map_.info.map_frame;
       robot_radius_ = load_map_.info.robot_radius;
       terrain_y_ = load_map_.info.sizey;
       terrain_x_ = load_map_.info.sizex;
       x_cells_ =  ceil(terrain_x_/1);
       y_cells_ =  ceil(terrain_y_/1);
+
+      manager_->setFixedFrame(map_frame_.c_str());
 
       ROS_INFO_STREAM(load_map_.info);
       ROS_ERROR("YEI");
@@ -180,7 +183,7 @@ void MyCommonViz::visualizeMap(){
   temporal_edges.ns = "edges"; //TODO maybe add segmentation layers
   temporal_edges.type = visualization_msgs::Marker::LINE_LIST;
   temporal_edges.action = visualization_msgs::Marker::ADD;
-  temporal_edges.scale.x = 1.0;
+  temporal_edges.scale.x = 0.25f;
   //temporal_edges.scale.y = 0.1;
   //temporal_edges.scale.z = 1.5;
   temporal_edges.color.r = 1.0;
@@ -198,13 +201,13 @@ void MyCommonViz::visualizeMap(){
 
   //TODO VISUALIZE ALL and current row 
   int current_row_ = 0;
-  int min_index = (current_row_*y_cells_);
+  int min_index = 0;//(current_row_*y_cells_);
   int max_index = (current_row_*y_cells_) + y_cells_;
   double yaw =(current_row_%2) ? -1.57 : 1.57;
 
   std::cout << "start " << min_index << " end " << max_index << std::endl;
 
-  for( auto id = min_index; id< max_index; ++id){
+  for( auto id = min_index; id< vector.size(); ++id){
     //Storing Nodes
     col = id/y_cells_;
     temporal_marker.id = id;
@@ -338,5 +341,15 @@ void MyCommonViz::publishRegion(){
 
 // Destructor.
 MyCommonViz::~MyCommonViz(){
+  ROS_ERROR("D common init");
+  map_publisher_.shutdown();
+  region_publisher_.shutdown();
+  nh_.shutdown();
+  //delete map_utils_;
+  delete controls_layout_;
+  delete main_layout_;
+  delete render_panel_;
+  delete message_store_;
   delete manager_;
+  ROS_ERROR("D common end");
 }
