@@ -142,18 +142,19 @@ void MyViz::visualizeRowMap(int row){
   temporal_marker.header.frame_id= map_frame_;
   temporal_marker.header.stamp = ros::Time::now();
   temporal_marker.ns = "nodes"; //TODO maybe add segmentation layers
-  temporal_marker.type = visualization_msgs::Marker::CUBE;
+  temporal_marker.type = visualization_msgs::Marker::ARROW;
 
   //DELETE PREVIOUS
   temporal_marker.action = visualization_msgs::Marker::DELETEALL;
   online_marker_array_.markers.push_back(temporal_marker);
-  //map_publisher_.publish(marker_array_);
+  online_map_publisher_.publish(online_marker_array_);
+  online_marker_array_.markers.clear();
 
   //Create New Nodes
   temporal_marker.action = visualization_msgs::Marker::ADD;
-  temporal_marker.scale.x = robot_radius_/3;//divided by three just o see edges
-  temporal_marker.scale.y = robot_radius_/3;
-  temporal_marker.scale.z = 0.1;
+  temporal_marker.scale.x = robot_radius_;//divided by three just o see edges
+  temporal_marker.scale.y = robot_radius_/5;
+  temporal_marker.scale.z = 0.25;
   temporal_marker.color.g = 0.3;
   temporal_marker.color.a = 0.5;
 
@@ -168,9 +169,9 @@ void MyViz::visualizeRowMap(int row){
   temporal_edges.ns = "edges"; //TODO maybe add segmentation layers
   temporal_edges.type = visualization_msgs::Marker::LINE_LIST;
   temporal_edges.action = visualization_msgs::Marker::ADD;
-  temporal_edges.scale.x = robot_radius_;
-  //temporal_edges.scale.y = 0.1;
-  //temporal_edges.scale.z = 1.5;
+  temporal_edges.scale.x = 0.1;//robot_radius_/3;
+  temporal_edges.scale.y = 0.1;
+  temporal_edges.scale.z = 1.5;
   temporal_edges.color.r = 1.0;
   temporal_edges.color.b = 1.0;
   temporal_edges.color.a = 1.0;

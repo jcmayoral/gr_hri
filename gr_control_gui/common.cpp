@@ -167,8 +167,8 @@ void MyCommonViz::visualizeMap(){
 
   //Create New Nodes
   temporal_marker.action = visualization_msgs::Marker::ADD;
-  temporal_marker.scale.x = robot_radius_/5;//divided by three just o see edges
-  temporal_marker.scale.y = robot_radius_/5;
+  temporal_marker.scale.x = 0.1;//robot_radius_/5;//divided by three just o see edges
+  temporal_marker.scale.y = 0.1;//robot_radius_/5;
   temporal_marker.scale.z = 0.1;
   temporal_marker.color.g = 0.3;
   temporal_marker.color.a = 0.5;
@@ -184,9 +184,9 @@ void MyCommonViz::visualizeMap(){
   temporal_edges.ns = "edges"; //TODO maybe add segmentation layers
   temporal_edges.type = visualization_msgs::Marker::LINE_LIST;
   temporal_edges.action = visualization_msgs::Marker::ADD;
-  temporal_edges.scale.x = 0.25f;
-  //temporal_edges.scale.y = 0.1;
-  //temporal_edges.scale.z = 1.5;
+  temporal_edges.scale.x = 0.1;
+  temporal_edges.scale.y = 0.1;
+  temporal_edges.scale.z = 0.1;
   temporal_edges.color.r = 1.0;
   temporal_edges.color.g = 1.0;
   temporal_edges.color.a = 1.0;
