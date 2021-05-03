@@ -51,12 +51,12 @@ namespace gr_control_gui{
       virtual ~MyCommonViz();
 
       void loadGUI();
-      //private Q_SLOTS:
-
-      void loadMap();
       void visualizeMap();
       void publishRegion();
 
+      private Q_SLOTS:
+
+      void loadMap();
       
     protected:
       NodeMap node_map_;

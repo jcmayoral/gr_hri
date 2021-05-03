@@ -14,6 +14,9 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   controls_layout_ = new QGridLayout();
   QPushButton* load_topological_map = new QPushButton ("Load Map");
   controls_layout_->addWidget( load_topological_map, 0, 0 );
+  connect( load_topological_map, SIGNAL( released( )), this, SLOT( loadMap()));
+
+
   manager_ = new rviz::VisualizationManager( render_panel_ );
   render_panel_->initialize( manager_->getSceneManager(), manager_ );
 
@@ -73,26 +76,62 @@ void MyCommonViz::loadGUI(){
 }
 
 void MyCommonViz::loadMap(){
+  ROS_INFO("LOAD MAP");
+
+  std::ifstream in("/tmp/lastmap_id.txt");
+  //out << storing_id_;
+  in >> storing_id_;
+  in.close();
+    std::cout << "BEFORE " << storing_id_ << std::endl;
+
   std::string map_id("wish_map_move_base");
   if (!storing_id_.empty()){
+    std::cout << "HERE " << storing_id_ << std::endl;
     std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
-    std::vector< boost::shared_ptr<navigation_msgs::TopologicalNode> > results_node;
 
-    //message_store_->queryNamed<navigation_msgs::TopologicalMap>(storing_id_,aaa);
-    //message_store_->updateNamed(map_id, topo_map);
-    //oad_map = *aa[0];
-    std::cout<<"Map \""<<map_id<<"\" updated with id "<<storing_id_<<std::endl;
-    if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id, results_map)) {
-            load_map_.nodes.clear();
-            std::cout << results_map.size() << std::endl;
-            BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
-               //ROS_INFO_STREAM("Got by name: " << *map);
-               load_map_ = *map;
-            }
-            ROS_INFO_STREAM(load_map_);
-            return;
+    if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
+      //message_store_->updateNamed(map_id, topo_map);
+      ROS_INFO("INSIDE queryNamed");
+      std::cout << results_map.size() << std::endl;
+      BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
+        load_map_ = *map;
+      }
+      ROS_INFO_STREAM(load_map_);
+      ROS_ERROR("YEI");
+      return;
     }
+
+
+     std::vector< boost::shared_ptr<navigation_msgs::TopologicalNode> > results_node;
+        //On this version the map is stored by NAME Not anymore nodes stored
+        ROS_WARN("QUERY NODES");
+        if(message_store_->queryNamed<navigation_msgs::TopologicalNode>(map_id, results_node, false)) {
+            load_map_.nodes.clear();
+            navigation_msgs::TopologicalNode node;
+            BOOST_FOREACH( boost::shared_ptr<navigation_msgs::TopologicalNode> node,  results_node){
+                ROS_DEBUG_STREAM("Got by name: " << *node);
+                load_map_.nodes.push_back(*node);
+            }
+           return;
+        }
+
+    std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
+    
+    /*
+    if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id, results_map)) {
+      ROS_INFO("AAAA");
+      load_map_.nodes.clear();
+      std::cout << results_map.size() << std::endl;
+      BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
+        ROS_INFO_STREAM("Got by name: " << *map);
+        load_map_ = *map;
+      }
+      ROS_INFO_STREAM(load_map_);
+      return;
+    }
+    */
   }
+
 }
 
 void MyCommonViz::visualizeMap(){
