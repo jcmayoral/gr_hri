@@ -6,8 +6,10 @@ using namespace gr_control_gui;
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), marker_array_(), robot_radius_(2.0), current_row_(1), terrain_x_(1.0), terrain_y_(1.0),
     storing_id_(""), id_maxnumberrows_(1), x_cells_{1}, y_cells_{1}{
+      ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct and lay out labels and slider controls.
-  QLabel* width_label = new QLabel( "Y Terrain" );
+  QLabel* width_label = new QLabel(
+     "Y Terrain" );
   QSlider* width_slider = new QSlider( Qt::Horizontal );
   width_slider->setMinimum( 1.00 );
   width_slider->setMaximum( 100.0 );
@@ -40,13 +42,13 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( map_frame_edit, 5, 1 );
 
   // Construct and lay out render panel.
-  render_panel_ = new rviz::RenderPanel();
+  //render_panel_ = new rviz::RenderPanel();
   QVBoxLayout* main_layout = new QVBoxLayout;
-  main_layout->addLayout( controls_layout );
-  main_layout->addWidget( render_panel_ );
+  main_layout_->addLayout( controls_layout );
+  //main_layout->addWidget( render_panel_ );
 
   // Set the top-level layout for this MyViz widget.
-  setLayout( main_layout );
+  //setLayout( main_layout );
 
   // Make signal/slot connections.
   connect( width_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
@@ -62,10 +64,11 @@ MyViz::MyViz( QWidget* parent )
   // holds the main Ogre scene, holds the ViewController, etc.  It is
   // very central and we will probably need one in every usage of
   // librviz.
-  manager_ = new rviz::VisualizationManager( render_panel_ );
-  render_panel_->initialize( manager_->getSceneManager(), manager_ );
+  //manager_ = new rviz::VisualizationManager( render_panel_ );
+  //render_panel_->initialize( manager_->getSceneManager(), manager_ );
 
-  // Create Subscribers
+  // Create Subscriber
+  /*
   rviz::Display* marker_display;
   marker_display = manager_->createDisplay( "rviz/MarkerArray", "topological_map", true );
   ROS_ASSERT( marker_display != NULL );
@@ -107,7 +110,7 @@ MyViz::MyViz( QWidget* parent )
   dect = manager_->createDisplay( "jsk_rviz_plugin/BoundingBoxArray", "dect_bb", true );
   ROS_ASSERT( dect != NULL );
   dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");
-
+  */
   // Initialize the slider values.
   height_slider->setValue( 2.0 );
   width_slider->setValue( 2.0 );

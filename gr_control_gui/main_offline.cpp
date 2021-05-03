@@ -49,6 +49,7 @@ int main(int argc, char **argv)
   QApplication app( argc, argv );
 
   MyViz* myviz = new MyViz();
+  myviz->loadGUI();
   myviz->show();
 
   app.exec();

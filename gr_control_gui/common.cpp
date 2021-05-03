@@ -3,6 +3,7 @@
 using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{}{
+  ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("temporal_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
   //collection and database as arguments to messageStoreProxy
@@ -64,6 +65,7 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{}{
 }
 
 void MyCommonViz::loadGUI(){
+  ROS_ERROR("LoadGUI");
   main_layout_->addLayout( controls_layout_ );
   main_layout_->addWidget( render_panel_ );
   setLayout( main_layout_ );
