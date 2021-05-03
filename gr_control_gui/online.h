@@ -36,11 +36,12 @@ namespace gr_control_gui{
 
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
       void executeCycle(int cycle);
+      void visualizeRowMap(int row);
 
     private:
-      int x_cells_;
-      int y_cells_;
       int current_row_;
+      visualization_msgs::MarkerArray online_marker_array_;
+
       ros::Publisher online_map_publisher_;
       ros::Publisher reset_publisher_;
       ros::ServiceClient update_client_;

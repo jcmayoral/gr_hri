@@ -64,12 +64,12 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");  
 
   manager_->setFixedFrame("map");
-  manager_->initialize();
-  manager_->startUpdate();
 }
 
 void MyCommonViz::loadGUI(){
   ROS_ERROR("LoadGUI");
+  manager_->initialize();
+  manager_->startUpdate();
   main_layout_->addLayout( controls_layout_ );
   main_layout_->addWidget( render_panel_ );
   setLayout( main_layout_ );
@@ -107,6 +107,7 @@ void MyCommonViz::loadMap(){
       manager_->setFixedFrame(map_frame_.c_str());
 
       ROS_INFO_STREAM(load_map_.info);
+        ROS_INFO_STREAM(x_cells_ << "ZZZ " << y_cells_);
       ROS_ERROR("YEI");
       visualizeMap();
       return;
@@ -200,90 +201,91 @@ void MyCommonViz::visualizeMap(){
   int col;
 
   //TODO VISUALIZE ALL and current row 
-  int current_row_ = 0;
-  int min_index = 0;//(current_row_*y_cells_);
-  int max_index = (current_row_*y_cells_) + y_cells_;
-  double yaw =(current_row_%2) ? -1.57 : 1.57;
+  for (int current_row = 0; current_row < x_cells_; current_row++){
+    int min_index = current_row*y_cells_;
+    int max_index = (current_row*y_cells_) + y_cells_;
+    double yaw =(current_row%2) ? -1.57 : 1.57;
 
-  std::cout << "start " << min_index << " end " << max_index << std::endl;
+    std::cout << "start " << min_index << " end " << max_index << std::endl;
 
-  for( auto id = min_index; id< vector.size(); ++id){
-    //Storing Nodes
-    col = id/y_cells_;
-    temporal_marker.id = id;
-    temporal_marker.pose.position.x = vector[id].first;
-    temporal_marker.pose.position.y = vector[id].second;
-    tf2::Quaternion quat_tf;
-    quat_tf.setRPY(0.0, 0.0, yaw);
-    geometry_msgs::Quaternion quat_msg;
-    tf2::convert(quat_tf, temporal_marker.pose.orientation);
+    for( auto id = min_index; id< max_index; ++id){
+      //Storing Nodes
+      col = id/y_cells_;
+      temporal_marker.id = id;
+      temporal_marker.pose.position.x = vector[id].first;
+      temporal_marker.pose.position.y = vector[id].second;
+      tf2::Quaternion quat_tf;
+      quat_tf.setRPY(0.0, 0.0, yaw);
+      geometry_msgs::Quaternion quat_msg;
+      tf2::convert(quat_tf, temporal_marker.pose.orientation);
 
-    marker_array_.markers.push_back(temporal_marker);
+      marker_array_.markers.push_back(temporal_marker);
 
-    std::string id_str("error");
-    std::string next_id_str("error");
+      std::string id_str("error");
+      std::string next_id_str("error");
 
-    id_str ="node_" + std::to_string(id);
-    std::cout << id_str << " NODE STRING " << std::endl;
-    next_id_str ="node_" + std::to_string(id+1);
-
-    //Nasty Hack
-    if (id == min_index){
-      id_str = "start_node";
-      if (col%2 == 1){
-         id_str = "end_node";
-      }
-    }
-    else if(id == max_index-1){
-      id_str = "end_node";
-      if (col%2 == 1){
-         id_str = "start_node";
-      }
-    }
-    else{
       id_str ="node_" + std::to_string(id);
-    }
-
-    if ((id+1) == min_index){
-      next_id_str = "start_node";
-      if (col%2 == 1){
-         next_id_str = "end_node";
-      }
-    }
-    else if(id == (max_index-2)){
-      next_id_str = "end_node";
-      if (col%2 == 1){
-         next_id_str = "start_node";
-      }
-    }
-    else{
+      std::cout << id_str << " NODE STRING " << std::endl;
       next_id_str ="node_" + std::to_string(id+1);
+
+      //Nasty Hack
+      if (id == min_index){
+        id_str = "start_node";
+        if (col%2 == 1){
+          id_str = "end_node";
+        }
+      }
+      else if(id == max_index-1){
+        id_str = "end_node";
+        if (col%2 == 1){
+          id_str = "start_node";
+        }
+      }
+      else{
+        id_str ="node_" + std::to_string(id);
+      }
+
+      if ((id+1) == min_index){
+        next_id_str = "start_node";
+        if (col%2 == 1){
+          next_id_str = "end_node";
+        }
+      }
+      else if(id == (max_index-2)){
+        next_id_str = "end_node";
+        if (col%2 == 1){
+          next_id_str = "start_node";
+        }
+      }
+      else{
+        next_id_str ="node_" + std::to_string(id+1);
+      }
+      //end of nasty hack
+      node_map_[id_str] = temporal_marker.pose;
+      ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
+
+      if (id == max_index-1){
+        //skip edges of last node of the row
+        continue;
+      }
+
+      temporal_edges.id = 100+id;
+      temporal_point.x = vector[id].first;
+      temporal_point.y = vector[id].second;
+      temporal_edges.points.push_back(temporal_point);
+      temporal_point.x = vector[id+1].first;
+      temporal_point.y = vector[id+1].second;
+      //Marker
+      temporal_edges.points.push_back(temporal_point);
+      //Edges ids
+
+      //birectional
+      //std::cout << id_str << next_id_str << std::endl;
+      edges_.emplace_back(id_str, next_id_str);
+      edges_.emplace_back(next_id_str,id_str);
+
+      marker_array_.markers.push_back(temporal_edges);
     }
-    //end of nasty hack
-    node_map_[id_str] = temporal_marker.pose;
-    ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
-
-    if (id == max_index-1){
-      //skip edges of last node of the row
-      continue;
-    }
-
-    temporal_edges.id = 100+id;
-    temporal_point.x = vector[id].first;
-    temporal_point.y = vector[id].second;
-    temporal_edges.points.push_back(temporal_point);
-    temporal_point.x = vector[id+1].first;
-    temporal_point.y = vector[id+1].second;
-    //Marker
-    temporal_edges.points.push_back(temporal_point);
-    //Edges ids
-
-    //birectional
-    //std::cout << id_str << next_id_str << std::endl;
-    edges_.emplace_back(id_str, next_id_str);
-    edges_.emplace_back(next_id_str,id_str);
-
-    marker_array_.markers.push_back(temporal_edges);
   }
 
   map_publisher_.publish(marker_array_);
