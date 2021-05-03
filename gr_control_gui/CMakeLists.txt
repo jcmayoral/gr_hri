@@ -48,7 +48,7 @@ qt5_use_modules(common_gui Core)
 target_link_libraries(common_gui ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 
 add_executable(online main_online.cpp)
-target_link_libraries(online online_gui)
+target_link_libraries(online online_gui common_gui)
 
 add_executable(offline main_offline.cpp)
 target_link_libraries(offline offline_gui common_gui)

@@ -27,6 +27,11 @@
 #include <gr_map_utils/UpdateMap.h>
 
 #include <mongodb_store/message_store.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <navigation_msgs/TopologicalMap.h>
+
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
 
 namespace rviz
 {
@@ -47,17 +52,37 @@ namespace gr_control_gui{
 
       void loadGUI();
       //private Q_SLOTS:
+
+      void loadMap();
+      void visualizeMap();
+      void publishRegion();
+
       
     protected:
+      NodeMap node_map_;
+      std::string storing_id_;
       MapGenerator* map_utils_;
       QGridLayout* controls_layout_;
       QVBoxLayout* main_layout_;
       rviz::RenderPanel* render_panel_;
      	mongodb_store::MessageStoreProxy* message_store_;
+      navigation_msgs::TopologicalMap load_map_;
+      visualization_msgs::MarkerArray marker_array_;
+      std::vector<Edges> edges_;
+      std::string map_frame_;
+
       ros::Publisher map_publisher_;
       ros::Publisher region_publisher_;
       ros::NodeHandle nh_;
       rviz::VisualizationManager* manager_;
+
+      //TODO Update TopoInfo
+      double robot_radius_;
+      float terrain_y_;
+      float terrain_x_;
+      int x_cells_;
+      int y_cells_;
+
   };
 };
 #endif 
