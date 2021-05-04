@@ -96,6 +96,7 @@ void MyViz::deleteTopoMap(){
   	message_store_->deleteID(storing_id_);
     std::cout << "deleted "<< storing_id_ << std::endl;
     storing_id_ = "";
+    std::remove("/tmp/lastmap_id.txt");
 }
 
 void MyViz::saveMap(){

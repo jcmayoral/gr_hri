@@ -12,6 +12,11 @@
 
 #include <common.h>
 
+#include<move_base_msgs/MoveBaseActionGoal.h>
+#include<gr_action_msgs/GRNavigationAction.h>
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
+
 namespace rviz
 {
 class Display;
@@ -45,6 +50,7 @@ namespace gr_control_gui{
       ros::Publisher online_map_publisher_;
       ros::Publisher reset_publisher_;
       ros::ServiceClient update_client_;
+      actionlib::SimpleActionClient<gr_action_msgs::GRNavigationAction> gr_action_server_;
 
       QLabel* time_to_go;
       ros::Subscriber time_to_go_sub_;

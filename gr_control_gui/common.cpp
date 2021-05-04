@@ -206,7 +206,7 @@ void MyCommonViz::visualizeMap(){
     int max_index = (current_row*y_cells_) + y_cells_;
     double yaw =(current_row%2) ? -1.57 : 1.57;
 
-    std::cout << "start " << min_index << " end " << max_index << std::endl;
+    //std::cout << "start " << min_index << " end " << max_index << std::endl;
 
     for( auto id = min_index; id< max_index; ++id){
       //Storing Nodes
@@ -225,9 +225,10 @@ void MyCommonViz::visualizeMap(){
       std::string next_id_str("error");
 
       id_str ="node_" + std::to_string(id);
-      std::cout << id_str << " NODE STRING " << std::endl;
+      //std::cout << id_str << " NODE STRING " << std::endl;
       next_id_str ="node_" + std::to_string(id+1);
 
+      /*
       //Nasty Hack
       if (id == min_index){
         id_str = "start_node";
@@ -260,9 +261,10 @@ void MyCommonViz::visualizeMap(){
       else{
         next_id_str ="node_" + std::to_string(id+1);
       }
+      */
       //end of nasty hack
       node_map_[id_str] = temporal_marker.pose;
-      ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
+      //ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
 
       if (id == max_index-1){
         //skip edges of last node of the row
@@ -277,15 +279,20 @@ void MyCommonViz::visualizeMap(){
       temporal_point.y = vector[id+1].second;
       //Marker
       temporal_edges.points.push_back(temporal_point);
+      //temporal_edges.points.push_back(temporal_point);
       //Edges ids
 
       //birectional
       //std::cout << id_str << next_id_str << std::endl;
       edges_.emplace_back(id_str, next_id_str);
-      edges_.emplace_back(next_id_str,id_str);
+      //edges_.emplace_back(next_id_str,id_str);
 
       marker_array_.markers.push_back(temporal_edges);
     }
+  }
+
+  for (auto e : edges_){
+    std::cout << e.first << " to " << e.second <<std::endl;
   }
 
   map_publisher_.publish(marker_array_);

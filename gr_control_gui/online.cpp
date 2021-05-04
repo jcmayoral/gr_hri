@@ -5,12 +5,12 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-    id_maxnumberrows_(1)
+    id_maxnumberrows_(1), gr_action_server_("gr_simple_manager", true)
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
   reset_publisher_ = local_nh.advertise<std_msgs::Time>("update_map", 1);
-
+  
 
   rviz::Display* marker_display;
   marker_display = manager_->createDisplay( "rviz/MarkerArray", "current_topological_map", true );
@@ -107,21 +107,39 @@ void MyViz::executeTopoMap(){
 
 
 void MyViz::executeCycle(int cycle){
-  gr_map_utils::UpdateMap req;
-  boost::shared_ptr<std_msgs::Empty const> msg_pointer;
   current_row_ = cycle;
   ROS_INFO_STREAM("current row "<< cycle);
   //deleteTopoMap();
   ros::Duration(1.0).sleep();
   visualizeMap();
 
+
+  /*this is teh fancy topological map
   reset_publisher_.publish(std_msgs::Time());
+  */
   ros::Duration(1.0).sleep();
+  gr_action_msgs::GRNavigationGoal goal;
+  goal.plan = online_marker_array_;
+  //goal.start_node = std::string("start_node").c_str();
+  gr_action_server_.sendGoal(goal);
+  bool finished_before_timeout = gr_action_server_.waitForResult();
+
+  actionlib::SimpleClientGoalState state = gr_action_server_.getState();
+  ROS_INFO("Action finished: %s",state.toString().c_str());
+
+  if (!finished_before_timeout){
+    cycle = id_maxnumberrows_ + 1;
+  }
+  //Update map if topological + metric map is used
+  /*
+  gr_map_utils::UpdateMap req;
   if(update_client_.call(req)){
     ROS_INFO("Client Succeded");
   }
-  std::cout << "Wait til finish" << std::endl;
+  */  
+  /*boost::shared_ptr<std_msgs::Empty const> msg_pointer;
   msg_pointer =  ros::topic::waitForMessage<std_msgs::Empty>("/end_motion");
+  */
 
   if (cycle < id_maxnumberrows_){
     ROS_INFO("ROW FINISHED");
@@ -136,7 +154,7 @@ void MyViz::visualizeRowMap(int row){
   visualization_msgs::Marker temporal_marker;
 
   online_marker_array_.markers.clear();
-  edges_.clear();
+  //edges_.clear();
 
   //For now this fields are constants FOR NODES
   temporal_marker.header.frame_id= map_frame_;
@@ -194,6 +212,12 @@ void MyViz::visualizeRowMap(int row){
 
   for( auto id = min_index; id< max_index; ++id){
     //Storing Nodes
+    std::string id_str("error");
+    std::string next_id_str("error");
+
+    id_str ="node_" + std::to_string(id);
+    next_id_str ="node_" + std::to_string(id+1);
+
     col = id/y_cells_;
     temporal_marker.id = id;
     temporal_marker.pose.position.x = vector[id].first;
@@ -202,15 +226,6 @@ void MyViz::visualizeRowMap(int row){
     quat_tf.setRPY(0.0, 0.0, yaw);
     geometry_msgs::Quaternion quat_msg;
     tf2::convert(quat_tf, temporal_marker.pose.orientation);
-
-    online_marker_array_.markers.push_back(temporal_marker);
-
-    std::string id_str("error");
-    std::string next_id_str("error");
-
-    id_str ="node_" + std::to_string(id);
-    std::cout << id_str << " NODE STRING " << std::endl;
-    next_id_str ="node_" + std::to_string(id+1);
 
     //Nasty Hack
     if (id == min_index){
@@ -246,7 +261,10 @@ void MyViz::visualizeRowMap(int row){
     }
     //end of nasty hack
     node_map_[id_str] = temporal_marker.pose;
-    ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
+    //ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
+
+    temporal_marker.text = id_str;
+    online_marker_array_.markers.push_back(temporal_marker);
 
     if (id == max_index-1){
       //skip edges of last node of the row
@@ -254,6 +272,7 @@ void MyViz::visualizeRowMap(int row){
     }
 
     temporal_edges.id = 100+id;
+    temporal_edges.text = id_str + "::" + next_id_str; 
     temporal_point.x = vector[id].first;
     temporal_point.y = vector[id].second;
     temporal_edges.points.push_back(temporal_point);
@@ -265,8 +284,8 @@ void MyViz::visualizeRowMap(int row){
 
     //birectional
     //std::cout << id_str << next_id_str << std::endl;
-    edges_.emplace_back(id_str, next_id_str);
-    edges_.emplace_back(next_id_str,id_str);
+    //edges_.emplace_back(id_str, next_id_str);
+    //edges_.emplace_back(next_id_str,id_str);
 
     online_marker_array_.markers.push_back(temporal_edges);
   }
