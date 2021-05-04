@@ -80,8 +80,11 @@ namespace gr_control_gui{
       double robot_radius_;
       float terrain_y_;
       float terrain_x_;
-      int x_cells_;
       int y_cells_;
+
+      //TODO THIS ARE SAME
+      int x_cells_;
+      int id_maxnumberrows_;
 
   };
 };

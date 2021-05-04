@@ -3,7 +3,7 @@
 using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(2.0),
-                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0){
+                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1){
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
@@ -103,6 +103,7 @@ void MyCommonViz::loadMap(){
       terrain_x_ = load_map_.info.sizex;
       x_cells_ =  ceil(terrain_x_/1);
       y_cells_ =  ceil(terrain_y_/1);
+      id_maxnumberrows_ = x_cells_;
 
       manager_->setFixedFrame(map_frame_.c_str());
 

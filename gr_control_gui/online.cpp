@@ -5,7 +5,7 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-    id_maxnumberrows_(1), gr_action_server_("gr_simple_manager", true)
+   gr_action_server_("gr_simple_manager", true)
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
@@ -110,8 +110,11 @@ void MyViz::executeCycle(int cycle){
   current_row_ = cycle;
   ROS_INFO_STREAM("current row "<< cycle);
   //deleteTopoMap();
-  ros::Duration(1.0).sleep();
+  //ros::Duration(1.0).sleep();
+
+  //BUG
   visualizeMap();
+  visualizeRowMap(current_row_);
 
 
   /*this is teh fancy topological map
@@ -122,12 +125,15 @@ void MyViz::executeCycle(int cycle){
   goal.plan = online_marker_array_;
   //goal.start_node = std::string("start_node").c_str();
   gr_action_server_.sendGoal(goal);
+  ROS_INFO("0");
   bool finished_before_timeout = gr_action_server_.waitForResult();
-
+  ROS_INFO("A");
   actionlib::SimpleClientGoalState state = gr_action_server_.getState();
   ROS_INFO("Action finished: %s",state.toString().c_str());
 
+  ROS_INFO("B");
   if (!finished_before_timeout){
+    ROS_ERROR("ERROR ");
     cycle = id_maxnumberrows_ + 1;
   }
   //Update map if topological + metric map is used
