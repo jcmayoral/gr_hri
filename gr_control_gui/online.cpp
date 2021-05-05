@@ -113,7 +113,7 @@ void MyViz::executeCycle(int cycle){
   //ros::Duration(1.0).sleep();
 
   //BUG
-  visualizeMap();
+  //visualizeMap();
   visualizeRowMap(current_row_);
 
 
