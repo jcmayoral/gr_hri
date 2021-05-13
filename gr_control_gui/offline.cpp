@@ -62,8 +62,23 @@ MyViz::MyViz( QWidget* parent )
   manager_->setFixedFrame(map_frame_.c_str());
   manager_->initialize();
   manager_->startUpdate();
-  update_client_ = nh_.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
+  update_server_ = nh_.advertiseService("/topological/edges", &MyViz::setEdges, this);
+  //server_ = new boost::make_shared<actionlib::SimpleActionServer<GREdgesAction>>(nh_, "/topological/edges", boost::bind(&MyViz::execute_cb, _1), false);
+  //server_->start();
+
 }
+
+bool MyViz::setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res){
+ ROS_INFO("Edges received");
+  terrain_y_ = req.height_meters;
+  y_cells_ = ceil(terrain_y_/1);
+
+  terrain_x_ = req.width_meters;
+  x_cells_ = ceil(terrain_x_/1);
+  visualizeMap();
+  return true;
+}
+
 
 MyViz::~MyViz()
 {
@@ -71,6 +86,20 @@ MyViz::~MyViz()
   ROS_ERROR("D offline end");
 
 }
+/*
+void MyViz::execute_cb(const GREdgesActionGoal& goal){
+  ROS_INFO("PLAN received");
+  terrain_y_ = goal->height_meters;
+  y_cells_ = ceil(terrain_y_/1);
+
+  terrain_x_ = goal.width_meters;
+  x_cells_ = ceil(terrain_x_/1);
+  visualizeMap();
+
+  server_->setSucceeded();
+
+}
+*/
 
 void MyViz::setFrame(QString frame){
   map_frame_ = frame.toStdString();

@@ -33,6 +33,13 @@
 
 #include <common.h>
 
+#include <gr_action_msgs/GREdgesAction.h>
+#include <gr_action_msgs/GREdges2.h>
+
+#include <actionlib/server/simple_action_server.h>
+
+
+
 namespace rviz
 {
 class Display;
@@ -56,11 +63,12 @@ namespace gr_control_gui{
       void saveMap();
       void deleteTopoMap();
       void setFrame(QString frame);
-
-      private:
-
+      bool setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res);
+      //void execute_cb(const GREdgesActionGoal& goal);
+    private:
+      //boost::shared_ptr<actionlib::SimpleActionServer<GREdgesAction>> server_;
       int current_row_;
-      ros::ServiceClient update_client_;
+      ros::ServiceServer update_server_;
 
       int id_maxnumberrows_;
 
