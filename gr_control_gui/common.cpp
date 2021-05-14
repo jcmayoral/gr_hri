@@ -2,7 +2,7 @@
 
 using namespace gr_control_gui;
 
-MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(2.0),
+MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
                  x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1){
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
@@ -82,17 +82,17 @@ void MyCommonViz::loadMap(){
   //out << storing_id_;
   in >> storing_id_;
   in.close();
-    std::cout << "BEFORE " << storing_id_ << std::endl;
+  //std::cout << "BEFORE " << storing_id_ << std::endl;
 
   std::string map_id("wish_map_move_base");
   if (!storing_id_.empty()){
-    std::cout << "HERE " << storing_id_ << std::endl;
+    //std::cout << "HERE " << storing_id_ << std::endl;
     std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
 
     if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
       //message_store_->updateNamed(map_id, topo_map);
-      ROS_INFO("INSIDE queryNamed");
-      std::cout << results_map.size() << std::endl;
+      //ROS_INFO("INSIDE queryNamed");
+      //std::cout << results_map.size() << std::endl;
       BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
         load_map_ = *map;
       }
@@ -102,13 +102,13 @@ void MyCommonViz::loadMap(){
       terrain_y_ = load_map_.info.sizey;
       terrain_x_ = load_map_.info.sizex;
       x_cells_ =  ceil(terrain_x_/1);
-      y_cells_ =  ceil(terrain_y_/1);
+      y_cells_ =  3;//ceil(terrain_y_/1);
       id_maxnumberrows_ = x_cells_;
 
       manager_->setFixedFrame(map_frame_.c_str());
 
       ROS_INFO_STREAM(load_map_.info);
-        ROS_INFO_STREAM(x_cells_ << "ZZZ " << y_cells_);
+      ROS_INFO_STREAM(x_cells_ << "ZZZ " << y_cells_);
       ROS_ERROR("YEI");
       visualizeMap();
       return;
@@ -196,7 +196,9 @@ void MyCommonViz::visualizeMap(){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/2.0);
+  std::cout << y_cells_ << " cells "<< terrain_y_ <<" -> terrain Y" << robot_radius_ << " -> RR" << std::endl;
+  std::cout << terrain_y_/2 << std::endl;
 
   int id, index_1, index_2 = 0;
   int col;
@@ -292,9 +294,11 @@ void MyCommonViz::visualizeMap(){
     }
   }
 
+  /*
   for (auto e : edges_){
     std::cout << e.first << " to " << e.second <<std::endl;
   }
+  */
 
   map_publisher_.publish(marker_array_);
   publishRegion();

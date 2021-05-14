@@ -204,7 +204,8 @@ void MyViz::visualizeRowMap(int row){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
+  ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/2.0);
 
   int id, index_1, index_2 = 0;
   int col;
