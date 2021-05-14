@@ -102,7 +102,7 @@ void MyCommonViz::loadMap(){
       terrain_y_ = load_map_.info.sizey;
       terrain_x_ = load_map_.info.sizex;
       x_cells_ =  ceil(terrain_x_/1);
-      y_cells_ =  3;//ceil(terrain_y_/1);
+      y_cells_ =  10;//ceil(terrain_y_/1);
       id_maxnumberrows_ = x_cells_;
 
       manager_->setFixedFrame(map_frame_.c_str());
@@ -196,7 +196,7 @@ void MyCommonViz::visualizeMap(){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/2.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/9.0);
   std::cout << y_cells_ << " cells "<< terrain_y_ <<" -> terrain Y" << robot_radius_ << " -> RR" << std::endl;
   std::cout << terrain_y_/2 << std::endl;
 

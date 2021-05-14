@@ -71,7 +71,7 @@ MyViz::MyViz( QWidget* parent )
 bool MyViz::setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res){
  ROS_INFO("Edges received");
   terrain_y_ = req.width_meters;
-  y_cells_ = 3;//ceil(terrain_y_/2);
+  y_cells_ = 10;//ceil(terrain_y_/2);
 
   terrain_x_ = req.height_meters;
   x_cells_ = ceil(terrain_x_/1);
@@ -107,7 +107,7 @@ void MyViz::setFrame(QString frame){
 
 void MyViz::setTerrainY( int value){
   terrain_y_ = value;
-  y_cells_ = 3;//ceil(value/4);
+  y_cells_ = 10;//ceil(value/4);
   visualizeMap();
 }
 
