@@ -5,19 +5,27 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-      id_maxnumberrows_(1) {
+      id_maxnumberrows_(1), angle_{0.0} {
   ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct and lay out labels and slider controls.
-  QLabel* width_label = new QLabel(
-     "Y Terrain" );
+  QLabel* width_label = new QLabel("Y Terrain" );
   QSlider* width_slider = new QSlider( Qt::Horizontal );
   width_slider->setMinimum( 1.00 );
   width_slider->setMaximum( 100.0 );
 
   QLabel* height_label = new QLabel( "X Terrain" );
   QSlider* height_slider = new QSlider( Qt::Horizontal );
+  QSlider* angle_slider = new QSlider( Qt::Horizontal );
+
   height_slider->setMinimum( 1.0 );
   height_slider->setMaximum( 100.0 );
+
+  QLabel* angle_label = new QLabel( "Angle " );
+  angle_slider->setMinimum(-180);
+  angle_slider->setMaximum(180);
+  
+  angle_text_ = new QTextEdit(QString("0.0"));
+  angle_text_->setReadOnly(true);
 
   QPushButton* save_topological_map = new QPushButton ("Store Map");
   QPushButton* delete_topological_map = new QPushButton ("Delete Map");
@@ -25,19 +33,24 @@ MyViz::MyViz( QWidget* parent )
   QPushButton* execute_map = new QPushButton ("Execute Map");
 
   QGridLayout* controls_layout = new QGridLayout();
-  controls_layout->addWidget( width_label, 1, 0 );
-  controls_layout->addWidget( width_slider, 1, 1 );
+  controls_layout->addWidget( width_label, 0, 0 );
+  controls_layout->addWidget( width_slider, 0, 1 );
 
-  controls_layout->addWidget( height_label, 2, 0 );
-  controls_layout->addWidget( height_slider, 2, 1 );
+  controls_layout->addWidget( height_label, 1, 0 );
+  controls_layout->addWidget( height_slider, 1, 1 );
+
+  controls_layout->addWidget( angle_label, 2, 0 );
+  controls_layout->addWidget( angle_slider, 2, 1 );
+  controls_layout->addWidget( angle_text_, 2, 2);
+
   controls_layout->addWidget( save_topological_map, 3, 0 );
   controls_layout->addWidget( delete_topological_map, 3, 1);
 
 
   QLabel* map_frame_label = new QLabel("Map Frame");
   QLineEdit* map_frame_edit = new QLineEdit();
-  map_frame_edit->setText(QString("workspace"));
-  map_frame_ = "workspace";
+  map_frame_edit->setText(QString("map"));
+  map_frame_ = "map";
   controls_layout->addWidget( map_frame_label, 5, 0 );
   controls_layout->addWidget( map_frame_edit, 5, 1 );
 
@@ -51,6 +64,8 @@ MyViz::MyViz( QWidget* parent )
   // Make signal/slot connections.
   connect( width_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
   connect( height_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainX(  int)));
+  connect( angle_slider, SIGNAL( valueChanged( int )), this, SLOT( setAngle(  int )));
+
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
   connect( map_frame_edit, SIGNAL(textChanged(QString)), this, SLOT(setFrame(QString)));
@@ -115,6 +130,11 @@ void MyViz::setTerrainX( int value ){
   terrain_x_ = value;
   x_cells_ = ceil(value/1);
   visualizeMap();
+}
+
+void MyViz::setAngle( int value ){
+  angle_ = M_PI*value/180;
+  angle_text_->setText(std::to_string(angle_).c_str());
 }
 
 void MyViz::deleteTopoMap(){

@@ -13,6 +13,7 @@
 #include <QVBoxLayout>
 #include <QDoubleSpinBox>
 #include <QLineEdit>
+#include <QTextEdit>
 
 #include <rviz/visualization_manager.h>
 #include <rviz/render_panel.h>
@@ -39,7 +40,6 @@
 #include <actionlib/server/simple_action_server.h>
 
 
-
 namespace rviz
 {
 class Display;
@@ -60,6 +60,7 @@ namespace gr_control_gui{
       private Q_SLOTS:
       void setTerrainY( int value);
       void setTerrainX( int value);
+      void setAngle( int value );
       void saveMap();
       void deleteTopoMap();
       void setFrame(QString frame);
@@ -71,6 +72,8 @@ namespace gr_control_gui{
       ros::ServiceServer update_server_;
 
       int id_maxnumberrows_;
+      float angle_;
+      QTextEdit* angle_text_;
 
   };
 };

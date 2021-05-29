@@ -103,7 +103,7 @@ void MyCommonViz::loadMap(){
       terrain_x_ = load_map_.info.sizex;
       x_cells_ =  ceil(terrain_x_/1);
       y_cells_ =  10;//ceil(terrain_y_/1);
-      id_maxnumberrows_ = x_cells_;
+      id_maxnumberrows_ = x_cells_-1;
 
       manager_->setFixedFrame(map_frame_.c_str());
 
@@ -324,28 +324,28 @@ void MyCommonViz::publishRegion(){
   region.color.a = 1.0;
 
   geometry_msgs::Point p;
-  p.x = -robot_radius_/2;
-  p.y = -robot_radius_/2;
+  p.x = -robot_radius_;
+  p.y = -robot_radius_;
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_;// + robot_radius_/2;
-  p.y = - robot_radius_/2;
+  p.x = terrain_x_ + robot_radius_;
+  p.y = - robot_radius_;
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_;// + robot_radius_/2;
-  p.y = terrain_y_;// + robot_radius_/2;
+  p.x = terrain_x_ + robot_radius_;
+  p.y = terrain_y_ + robot_radius_;
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = -robot_radius_/2;
-  p.y = terrain_y_;// + robot_radius_/2;
+  p.x = -robot_radius_;
+  p.y = terrain_y_+ robot_radius_;
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = -robot_radius_/2;
-  p.y = -robot_radius_/2;
+  p.x = -robot_radius_;
+  p.y = -robot_radius_;
   p.z = 0.0;
   region.points.push_back(p);
 
