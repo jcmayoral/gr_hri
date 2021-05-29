@@ -88,6 +88,8 @@ namespace gr_control_gui{
 
       //map rotation
       float angle_;
+      int direction_;
+
   };
 };
 #endif 

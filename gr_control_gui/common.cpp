@@ -4,7 +4,7 @@ using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
                  x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
-                 angle_{0.0}{
+                 angle_{0.0}, direction_{0}{
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
@@ -197,7 +197,7 @@ void MyCommonViz::visualizeMap(){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/9.0);
   std::cout << y_cells_ << " cells "<< terrain_y_ <<" -> terrain Y" << robot_radius_ << " -> RR" << std::endl;
   std::cout << terrain_y_/2 << std::endl;
 
@@ -340,7 +340,7 @@ void MyCommonViz::publishRegion(){
 
   geometry_msgs::Point p;
 
-  tx = -robot_radius_;
+  tx = -robot_radius_*direction_;
   ty = -robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
@@ -348,7 +348,7 @@ void MyCommonViz::publishRegion(){
   region.points.push_back(p);
 
 
-  tx = terrain_x_ + robot_radius_;
+  tx = (terrain_x_ + robot_radius_)*direction_;
   ty = -robot_radius_;
 
   p.x = tx * cos(angle_) - ty *sin(angle_);
@@ -356,7 +356,7 @@ void MyCommonViz::publishRegion(){
   p.z = 0.0;
   region.points.push_back(p);
 
-  tx = terrain_x_ + robot_radius_;
+  tx = (terrain_x_ + robot_radius_)*direction_;
   ty = terrain_y_ + robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
@@ -364,14 +364,14 @@ void MyCommonViz::publishRegion(){
   region.points.push_back(p);
 
 
-  tx = -robot_radius_;
+  tx = -robot_radius_*direction_;
   ty = terrain_y_ + robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
   
-  tx = -robot_radius_;
+  tx = -robot_radius_*direction_;
   ty = -robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);

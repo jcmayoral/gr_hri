@@ -36,10 +36,12 @@ MyViz::MyViz( QWidget* parent )
   angle_text_->setReadOnly(true);
   angle_text_->setMaximumSize(QSize(100, 50));
 
+  checkbox_ = new QCheckBox("direction", this);
+
   QPushButton* save_topological_map = new QPushButton ("Store Map");
   QPushButton* delete_topological_map = new QPushButton ("Delete Map");
-
   QPushButton* execute_map = new QPushButton ("Execute Map");
+
 
   QGridLayout* controls_layout = new QGridLayout();
   controls_layout->addWidget( width_label, 0, 0 );
@@ -56,6 +58,7 @@ MyViz::MyViz( QWidget* parent )
 
   controls_layout->addWidget( save_topological_map, 3, 0 );
   controls_layout->addWidget( delete_topological_map, 3, 1);
+  controls_layout->addWidget( checkbox_, 3, 2);
 
 
   QLabel* map_frame_label = new QLabel("Map Frame");
@@ -79,7 +82,9 @@ MyViz::MyViz( QWidget* parent )
 
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
+
   connect( map_frame_edit, SIGNAL(textChanged(QString)), this, SLOT(setFrame(QString)));
+  connect( checkbox_, SIGNAL(stateChanged(int )), this, SLOT(setDirection( int )));
 
   // Initialize the slider values.
   height_slider->setValue( 2.0 );
@@ -126,6 +131,12 @@ void MyViz::execute_cb(const GREdgesActionGoal& goal){
 
 }
 */
+
+void MyViz::setDirection(int state){
+  std::cout << "direction " << state << std::endl;
+  direction_ = state-1;
+  visualizeMap();
+}
 
 void MyViz::setFrame(QString frame){
   map_frame_ = frame.toStdString();
@@ -199,6 +210,7 @@ void MyViz::saveMap(){
       if (e.first.compare(node.first)==0){
         edge.edge_id = e.first + "_" + e.second;
         edge.node = e.second;
+        //At the moment deprected
         edge.action = "sbpl_action";
         topo_node.edges.push_back(edge);
       }
