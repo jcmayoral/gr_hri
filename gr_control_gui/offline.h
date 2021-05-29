@@ -73,6 +73,8 @@ namespace gr_control_gui{
 
       int id_maxnumberrows_;
       QTextEdit* angle_text_;
+      QTextEdit* x_text_;
+      QTextEdit* y_text_;
 
   };
 };

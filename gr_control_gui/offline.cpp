@@ -23,9 +23,18 @@ MyViz::MyViz( QWidget* parent )
   QLabel* angle_label = new QLabel( "Angle " );
   angle_slider->setMinimum(-180);
   angle_slider->setMaximum(180);
-  
+
+  x_text_ = new QTextEdit(QString("0.0"));
+  x_text_->setReadOnly(true);
+  x_text_->setMaximumSize(QSize(100, 50));
+
+  y_text_ = new QTextEdit(QString("0.0"));
+  y_text_->setReadOnly(true);
+  y_text_->setMaximumSize(QSize(100, 50));
+
   angle_text_ = new QTextEdit(QString("0.0"));
   angle_text_->setReadOnly(true);
+  angle_text_->setMaximumSize(QSize(100, 50));
 
   QPushButton* save_topological_map = new QPushButton ("Store Map");
   QPushButton* delete_topological_map = new QPushButton ("Delete Map");
@@ -35,9 +44,11 @@ MyViz::MyViz( QWidget* parent )
   QGridLayout* controls_layout = new QGridLayout();
   controls_layout->addWidget( width_label, 0, 0 );
   controls_layout->addWidget( width_slider, 0, 1 );
+  controls_layout->addWidget( y_text_, 0, 2);
 
   controls_layout->addWidget( height_label, 1, 0 );
   controls_layout->addWidget( height_slider, 1, 1 );
+  controls_layout->addWidget( x_text_, 1, 2);
 
   controls_layout->addWidget( angle_label, 2, 0 );
   controls_layout->addWidget( angle_slider, 2, 1 );
@@ -122,12 +133,14 @@ void MyViz::setFrame(QString frame){
 
 void MyViz::setTerrainY( int value){
   terrain_y_ = value;
+  y_text_->setText(std::to_string(value).c_str());
   y_cells_ = 10;//ceil(value/4);
   visualizeMap();
 }
 
 void MyViz::setTerrainX( int value ){
   terrain_x_ = value;
+  x_text_->setText(std::to_string(value).c_str());
   x_cells_ = ceil(value/1);
   visualizeMap();
 }
