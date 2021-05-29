@@ -5,7 +5,7 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-      id_maxnumberrows_(1), angle_{0.0} {
+      id_maxnumberrows_(1) {
   ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct and lay out labels and slider controls.
   QLabel* width_label = new QLabel("Y Terrain" );
@@ -135,6 +135,7 @@ void MyViz::setTerrainX( int value ){
 void MyViz::setAngle( int value ){
   angle_ = M_PI*value/180;
   angle_text_->setText(std::to_string(angle_).c_str());
+  visualizeMap();
 }
 
 void MyViz::deleteTopoMap(){

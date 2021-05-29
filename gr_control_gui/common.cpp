@@ -3,7 +3,8 @@
 using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
-                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1){
+                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
+                 angle_{0.0}{
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
@@ -203,11 +204,17 @@ void MyCommonViz::visualizeMap(){
   int id, index_1, index_2 = 0;
   int col;
 
+  float tx = 0.0;
+  float ty = 0.0;
+  float tx1 = 0.0;
+  float ty1 = 0.0;
+
   //TODO VISUALIZE ALL and current row 
   for (int current_row = 0; current_row < x_cells_; current_row++){
     int min_index = current_row*y_cells_;
     int max_index = (current_row*y_cells_) + y_cells_;
     double yaw =(current_row%2) ? -1.57 : 1.57;
+    yaw+=angle_;
 
     //std::cout << "start " << min_index << " end " << max_index << std::endl;
 
@@ -215,8 +222,10 @@ void MyCommonViz::visualizeMap(){
       //Storing Nodes
       col = id/y_cells_;
       temporal_marker.id = id;
-      temporal_marker.pose.position.x = vector[id].first;
-      temporal_marker.pose.position.y = vector[id].second;
+      tx = vector[id].first;
+      ty = vector[id].second;
+      temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
+      temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
       tf2::Quaternion quat_tf;
       quat_tf.setRPY(0.0, 0.0, yaw);
       geometry_msgs::Quaternion quat_msg;
@@ -275,11 +284,14 @@ void MyCommonViz::visualizeMap(){
       }
 
       temporal_edges.id = 100+id;
-      temporal_point.x = vector[id].first;
-      temporal_point.y = vector[id].second;
+
+      tx1 = vector[id+1].first;
+      ty1 = vector[id+1].second;
+      temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
+      temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
       temporal_edges.points.push_back(temporal_point);
-      temporal_point.x = vector[id+1].first;
-      temporal_point.y = vector[id+1].second;
+      temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
+      temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
       //Marker
       temporal_edges.points.push_back(temporal_point);
       //temporal_edges.points.push_back(temporal_point);
@@ -323,29 +335,46 @@ void MyCommonViz::publishRegion(){
   region.color.g = 1.0;
   region.color.a = 1.0;
 
+  float tx = 0.0;
+  float ty = 0.0;
+
   geometry_msgs::Point p;
-  p.x = -robot_radius_;
-  p.y = -robot_radius_;
+
+  tx = -robot_radius_;
+  ty = -robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_ + robot_radius_;
-  p.y = - robot_radius_;
+
+  tx = terrain_x_ + robot_radius_;
+  ty = -robot_radius_;
+
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_ + robot_radius_;
-  p.y = terrain_y_ + robot_radius_;
+  tx = terrain_x_ + robot_radius_;
+  ty = terrain_y_ + robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = -robot_radius_;
-  p.y = terrain_y_+ robot_radius_;
+
+  tx = -robot_radius_;
+  ty = terrain_y_ + robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
-
-  p.x = -robot_radius_;
-  p.y = -robot_radius_;
+  
+  tx = -robot_radius_;
+  ty = -robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 

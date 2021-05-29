@@ -72,7 +72,6 @@ namespace gr_control_gui{
       ros::ServiceServer update_server_;
 
       int id_maxnumberrows_;
-      float angle_;
       QTextEdit* angle_text_;
 
   };
