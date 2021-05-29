@@ -13,6 +13,9 @@
 #include <QVBoxLayout>
 #include <QDoubleSpinBox>
 #include <QLineEdit>
+#include <QTextEdit>
+#include <QCheckBox>
+
 
 #include <rviz/visualization_manager.h>
 #include <rviz/render_panel.h>
@@ -29,6 +32,7 @@
 #include <boost/foreach.hpp>
 #include <thread>
 
+
 #include <gr_map_utils/UpdateMap.h>
 
 #include <common.h>
@@ -37,7 +41,6 @@
 #include <gr_action_msgs/GREdges2.h>
 
 #include <actionlib/server/simple_action_server.h>
-
 
 
 namespace rviz
@@ -60,6 +63,8 @@ namespace gr_control_gui{
       private Q_SLOTS:
       void setTerrainY( int value);
       void setTerrainX( int value);
+      void setAngle( int value );
+      void setDirection(int state);
       void saveMap();
       void deleteTopoMap();
       void setFrame(QString frame);
@@ -71,6 +76,11 @@ namespace gr_control_gui{
       ros::ServiceServer update_server_;
 
       int id_maxnumberrows_;
+      QTextEdit* angle_text_;
+      QTextEdit* x_text_;
+      QTextEdit* y_text_;
+      //Direction
+      QCheckBox *checkbox_;
 
   };
 };

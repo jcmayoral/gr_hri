@@ -8,36 +8,63 @@ MyViz::MyViz( QWidget* parent )
       id_maxnumberrows_(1) {
   ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct and lay out labels and slider controls.
-  QLabel* width_label = new QLabel(
-     "Y Terrain" );
+  QLabel* width_label = new QLabel("Y Terrain" );
   QSlider* width_slider = new QSlider( Qt::Horizontal );
   width_slider->setMinimum( 1.00 );
   width_slider->setMaximum( 100.0 );
 
   QLabel* height_label = new QLabel( "X Terrain" );
   QSlider* height_slider = new QSlider( Qt::Horizontal );
+  QSlider* angle_slider = new QSlider( Qt::Horizontal );
+
   height_slider->setMinimum( 1.0 );
   height_slider->setMaximum( 100.0 );
 
+  QLabel* angle_label = new QLabel( "Angle " );
+  angle_slider->setMinimum(-180);
+  angle_slider->setMaximum(180);
+
+  x_text_ = new QTextEdit(QString("0.0"));
+  x_text_->setReadOnly(true);
+  x_text_->setMaximumSize(QSize(100, 50));
+
+  y_text_ = new QTextEdit(QString("0.0"));
+  y_text_->setReadOnly(true);
+  y_text_->setMaximumSize(QSize(100, 50));
+
+  angle_text_ = new QTextEdit(QString("0.0"));
+  angle_text_->setReadOnly(true);
+  angle_text_->setMaximumSize(QSize(100, 50));
+
+  checkbox_ = new QCheckBox("direction", this);
+
   QPushButton* save_topological_map = new QPushButton ("Store Map");
   QPushButton* delete_topological_map = new QPushButton ("Delete Map");
-
   QPushButton* execute_map = new QPushButton ("Execute Map");
 
-  QGridLayout* controls_layout = new QGridLayout();
-  controls_layout->addWidget( width_label, 1, 0 );
-  controls_layout->addWidget( width_slider, 1, 1 );
 
-  controls_layout->addWidget( height_label, 2, 0 );
-  controls_layout->addWidget( height_slider, 2, 1 );
+  QGridLayout* controls_layout = new QGridLayout();
+  controls_layout->addWidget( width_label, 0, 0 );
+  controls_layout->addWidget( width_slider, 0, 1 );
+  controls_layout->addWidget( y_text_, 0, 2);
+
+  controls_layout->addWidget( height_label, 1, 0 );
+  controls_layout->addWidget( height_slider, 1, 1 );
+  controls_layout->addWidget( x_text_, 1, 2);
+
+  controls_layout->addWidget( angle_label, 2, 0 );
+  controls_layout->addWidget( angle_slider, 2, 1 );
+  controls_layout->addWidget( angle_text_, 2, 2);
+
   controls_layout->addWidget( save_topological_map, 3, 0 );
   controls_layout->addWidget( delete_topological_map, 3, 1);
+  controls_layout->addWidget( checkbox_, 3, 2);
 
 
   QLabel* map_frame_label = new QLabel("Map Frame");
   QLineEdit* map_frame_edit = new QLineEdit();
-  map_frame_edit->setText(QString("workspace"));
-  map_frame_ = "workspace";
+  map_frame_edit->setText(QString("map"));
+  map_frame_ = "map";
   controls_layout->addWidget( map_frame_label, 5, 0 );
   controls_layout->addWidget( map_frame_edit, 5, 1 );
 
@@ -51,9 +78,13 @@ MyViz::MyViz( QWidget* parent )
   // Make signal/slot connections.
   connect( width_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
   connect( height_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainX(  int)));
+  connect( angle_slider, SIGNAL( valueChanged( int )), this, SLOT( setAngle(  int )));
+
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
+
   connect( map_frame_edit, SIGNAL(textChanged(QString)), this, SLOT(setFrame(QString)));
+  connect( checkbox_, SIGNAL(stateChanged(int )), this, SLOT(setDirection( int )));
 
   // Initialize the slider values.
   height_slider->setValue( 2.0 );
@@ -70,10 +101,10 @@ MyViz::MyViz( QWidget* parent )
 
 bool MyViz::setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res){
  ROS_INFO("Edges received");
-  terrain_y_ = req.height_meters;
-  y_cells_ = ceil(terrain_y_/1);
+  terrain_y_ = req.width_meters;
+  y_cells_ = 10;//ceil(terrain_y_/2);
 
-  terrain_x_ = req.width_meters;
+  terrain_x_ = req.height_meters;
   x_cells_ = ceil(terrain_x_/1);
   visualizeMap();
   return true;
@@ -101,19 +132,33 @@ void MyViz::execute_cb(const GREdgesActionGoal& goal){
 }
 */
 
+void MyViz::setDirection(int state){
+  std::cout << "direction " << state << std::endl;
+  direction_ = state-1;
+  visualizeMap();
+}
+
 void MyViz::setFrame(QString frame){
   map_frame_ = frame.toStdString();
 }
 
 void MyViz::setTerrainY( int value){
   terrain_y_ = value;
-  y_cells_ = ceil(value/1);
+  y_text_->setText(std::to_string(value).c_str());
+  y_cells_ = 10;//ceil(value/4);
   visualizeMap();
 }
 
 void MyViz::setTerrainX( int value ){
   terrain_x_ = value;
+  x_text_->setText(std::to_string(value).c_str());
   x_cells_ = ceil(value/1);
+  visualizeMap();
+}
+
+void MyViz::setAngle( int value ){
+  angle_ = M_PI*value/180;
+  angle_text_->setText(std::to_string(angle_).c_str());
   visualizeMap();
 }
 
@@ -165,6 +210,7 @@ void MyViz::saveMap(){
       if (e.first.compare(node.first)==0){
         edge.edge_id = e.first + "_" + e.second;
         edge.node = e.second;
+        //At the moment deprected
         edge.action = "sbpl_action";
         topo_node.edges.push_back(edge);
       }

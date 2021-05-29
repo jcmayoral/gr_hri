@@ -86,6 +86,10 @@ namespace gr_control_gui{
       int x_cells_;
       int id_maxnumberrows_;
 
+      //map rotation
+      float angle_;
+      int direction_;
+
   };
 };
 #endif 

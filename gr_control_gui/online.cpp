@@ -85,7 +85,7 @@ void MyViz::setFrame(QString frame){
 }
 
 void MyViz::setDesiredRow(int row){
-  id_maxnumberrows_ = x_cells_;
+  id_maxnumberrows_ = x_cells_-1;
   std::cout << "MAX " << x_cells_ << std::endl;
 
   if (row < id_maxnumberrows_){
@@ -204,7 +204,8 @@ void MyViz::visualizeRowMap(int row){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
+  ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/9.0);
 
   int id, index_1, index_2 = 0;
   int col;

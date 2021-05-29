@@ -2,8 +2,9 @@
 
 using namespace gr_control_gui;
 
-MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(2.0),
-                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1){
+MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
+                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
+                 angle_{0.0}, direction_{-1}{
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
@@ -82,17 +83,17 @@ void MyCommonViz::loadMap(){
   //out << storing_id_;
   in >> storing_id_;
   in.close();
-    std::cout << "BEFORE " << storing_id_ << std::endl;
+  //std::cout << "BEFORE " << storing_id_ << std::endl;
 
   std::string map_id("wish_map_move_base");
   if (!storing_id_.empty()){
-    std::cout << "HERE " << storing_id_ << std::endl;
+    //std::cout << "HERE " << storing_id_ << std::endl;
     std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
 
     if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
       //message_store_->updateNamed(map_id, topo_map);
-      ROS_INFO("INSIDE queryNamed");
-      std::cout << results_map.size() << std::endl;
+      //ROS_INFO("INSIDE queryNamed");
+      //std::cout << results_map.size() << std::endl;
       BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
         load_map_ = *map;
       }
@@ -102,13 +103,13 @@ void MyCommonViz::loadMap(){
       terrain_y_ = load_map_.info.sizey;
       terrain_x_ = load_map_.info.sizex;
       x_cells_ =  ceil(terrain_x_/1);
-      y_cells_ =  ceil(terrain_y_/1);
-      id_maxnumberrows_ = x_cells_;
+      y_cells_ =  10;//ceil(terrain_y_/1);
+      id_maxnumberrows_ = x_cells_-1;
 
       manager_->setFixedFrame(map_frame_.c_str());
 
       ROS_INFO_STREAM(load_map_.info);
-        ROS_INFO_STREAM(x_cells_ << "ZZZ " << y_cells_);
+      ROS_INFO_STREAM(x_cells_ << "ZZZ " << y_cells_);
       ROS_ERROR("YEI");
       visualizeMap();
       return;
@@ -196,16 +197,24 @@ void MyCommonViz::visualizeMap(){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/9.0);
+  std::cout << y_cells_ << " cells "<< terrain_y_ <<" -> terrain Y" << robot_radius_ << " -> RR" << std::endl;
+  std::cout << terrain_y_/2 << std::endl;
 
   int id, index_1, index_2 = 0;
   int col;
+
+  float tx = 0.0;
+  float ty = 0.0;
+  float tx1 = 0.0;
+  float ty1 = 0.0;
 
   //TODO VISUALIZE ALL and current row 
   for (int current_row = 0; current_row < x_cells_; current_row++){
     int min_index = current_row*y_cells_;
     int max_index = (current_row*y_cells_) + y_cells_;
     double yaw =(current_row%2) ? -1.57 : 1.57;
+    yaw+=angle_;
 
     //std::cout << "start " << min_index << " end " << max_index << std::endl;
 
@@ -213,8 +222,10 @@ void MyCommonViz::visualizeMap(){
       //Storing Nodes
       col = id/y_cells_;
       temporal_marker.id = id;
-      temporal_marker.pose.position.x = vector[id].first;
-      temporal_marker.pose.position.y = vector[id].second;
+      tx = vector[id].first;
+      ty = vector[id].second;
+      temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
+      temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
       tf2::Quaternion quat_tf;
       quat_tf.setRPY(0.0, 0.0, yaw);
       geometry_msgs::Quaternion quat_msg;
@@ -273,11 +284,14 @@ void MyCommonViz::visualizeMap(){
       }
 
       temporal_edges.id = 100+id;
-      temporal_point.x = vector[id].first;
-      temporal_point.y = vector[id].second;
+
+      tx1 = vector[id+1].first;
+      ty1 = vector[id+1].second;
+      temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
+      temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
       temporal_edges.points.push_back(temporal_point);
-      temporal_point.x = vector[id+1].first;
-      temporal_point.y = vector[id+1].second;
+      temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
+      temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
       //Marker
       temporal_edges.points.push_back(temporal_point);
       //temporal_edges.points.push_back(temporal_point);
@@ -292,9 +306,11 @@ void MyCommonViz::visualizeMap(){
     }
   }
 
+  /*
   for (auto e : edges_){
     std::cout << e.first << " to " << e.second <<std::endl;
   }
+  */
 
   map_publisher_.publish(marker_array_);
   publishRegion();
@@ -319,29 +335,46 @@ void MyCommonViz::publishRegion(){
   region.color.g = 1.0;
   region.color.a = 1.0;
 
+  float tx = 0.0;
+  float ty = 0.0;
+
   geometry_msgs::Point p;
-  p.x = -robot_radius_/2;
-  p.y = -robot_radius_/2;
+
+  tx = -robot_radius_*direction_;
+  ty = -robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_;// + robot_radius_/2;
-  p.y = - robot_radius_/2;
+
+  tx = (terrain_x_ + robot_radius_)*direction_;
+  ty = -robot_radius_;
+
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_;// + robot_radius_/2;
-  p.y = terrain_y_;// + robot_radius_/2;
+  tx = (terrain_x_ + robot_radius_)*direction_;
+  ty = terrain_y_ + robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = -robot_radius_/2;
-  p.y = terrain_y_;// + robot_radius_/2;
+
+  tx = -robot_radius_*direction_;
+  ty = terrain_y_ + robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
-
-  p.x = -robot_radius_/2;
-  p.y = -robot_radius_/2;
+  
+  tx = -robot_radius_*direction_;
+  ty = -robot_radius_;
+  p.x = tx * cos(angle_) - ty *sin(angle_);
+  p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
