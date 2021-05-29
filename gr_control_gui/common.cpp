@@ -213,8 +213,8 @@ void MyCommonViz::visualizeMap(){
       //Storing Nodes
       col = id/y_cells_;
       temporal_marker.id = id;
-      temporal_marker.pose.position.x = vector[id].first;
-      temporal_marker.pose.position.y = vector[id].second;
+      temporal_marker.pose.position.y = vector[id].first;
+      temporal_marker.pose.position.x = vector[id].second;
       tf2::Quaternion quat_tf;
       quat_tf.setRPY(0.0, 0.0, yaw);
       geometry_msgs::Quaternion quat_msg;
@@ -273,11 +273,11 @@ void MyCommonViz::visualizeMap(){
       }
 
       temporal_edges.id = 100+id;
-      temporal_point.x = vector[id].first;
-      temporal_point.y = vector[id].second;
+      temporal_point.y = vector[id].first;
+      temporal_point.x = vector[id].second;
       temporal_edges.points.push_back(temporal_point);
-      temporal_point.x = vector[id+1].first;
-      temporal_point.y = vector[id+1].second;
+      temporal_point.y = vector[id+1].first;
+      temporal_point.x = vector[id+1].second;
       //Marker
       temporal_edges.points.push_back(temporal_point);
       //temporal_edges.points.push_back(temporal_point);
@@ -325,23 +325,23 @@ void MyCommonViz::publishRegion(){
   p.z = 0.0;
   region.points.push_back(p);
 
-  p.x = terrain_x_;// + robot_radius_/2;
-  p.y = - robot_radius_/2;
-  p.z = 0.0;
-  region.points.push_back(p);
-
-  p.x = terrain_x_;// + robot_radius_/2;
-  p.y = terrain_y_;// + robot_radius_/2;
-  p.z = 0.0;
-  region.points.push_back(p);
-
-  p.x = -robot_radius_/2;
-  p.y = terrain_y_;// + robot_radius_/2;
-  p.z = 0.0;
-  region.points.push_back(p);
-
-  p.x = -robot_radius_/2;
+  p.x = terrain_y_;// + robot_radius_/2;
   p.y = -robot_radius_/2;
+  p.z = 0.0;
+  region.points.push_back(p);
+
+  p.x = terrain_y_;// + robot_radius_/2;
+  p.y = terrain_x_;// + robot_radius_/2;
+  p.z = 0.0;
+  region.points.push_back(p);
+
+  p.x = -robot_radius_/2;
+  p.y = terrain_x_;// + robot_radius_/2;
+  p.z = 0.0;
+  region.points.push_back(p);
+
+  p.x = -robot_radius_/2;
+  p.y = - robot_radius_/2;
   p.z = 0.0;
   region.points.push_back(p);
 

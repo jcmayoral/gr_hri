@@ -212,7 +212,7 @@ void MyViz::visualizeRowMap(int row){
   //TODO VISUALIZE ALL and current row 
   int min_index = row*y_cells_;
   int max_index = (row*y_cells_) + y_cells_;
-  double yaw =(row%2) ? -1.57 : 1.57;
+  double yaw =(row%2) ? -1.57*2 : 1.57*2;
 
   std::cout << "start " << min_index << " end " << max_index << std::endl;
 
@@ -226,8 +226,8 @@ void MyViz::visualizeRowMap(int row){
 
     col = id/y_cells_;
     temporal_marker.id = id;
-    temporal_marker.pose.position.x = vector[id].first;
-    temporal_marker.pose.position.y = vector[id].second;
+    temporal_marker.pose.position.y = vector[id].first;
+    temporal_marker.pose.position.x = vector[id].second;
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0.0, 0.0, yaw);
     geometry_msgs::Quaternion quat_msg;
@@ -279,11 +279,11 @@ void MyViz::visualizeRowMap(int row){
 
     temporal_edges.id = 100+id;
     temporal_edges.text = id_str + "::" + next_id_str; 
-    temporal_point.x = vector[id].first;
-    temporal_point.y = vector[id].second;
+    temporal_point.y = vector[id].first;
+    temporal_point.x = vector[id].second;
     temporal_edges.points.push_back(temporal_point);
-    temporal_point.x = vector[id+1].first;
-    temporal_point.y = vector[id+1].second;
+    temporal_point.y = vector[id+1].first;
+    temporal_point.x = -vector[id+1].second;
     //Marker
     temporal_edges.points.push_back(temporal_point);
     //Edges ids
