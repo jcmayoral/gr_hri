@@ -83,21 +83,25 @@ void MyCommonViz::loadMap(){
   //out << storing_id_;
   in >> storing_id_;
   in.close();
-  //std::cout << "BEFORE " << storing_id_ << std::endl;
+  std::cout << "BEFORE " << storing_id_ << std::endl;
 
   std::string map_id("wish_map_move_base");
   if (!storing_id_.empty()){
-    //std::cout << "HERE " << storing_id_ << std::endl;
+    std::cout << "HERE " << storing_id_ << std::endl;
     std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
 
     if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
       //message_store_->updateNamed(map_id, topo_map);
-      //ROS_INFO("INSIDE queryNamed");
+      ROS_INFO("INSIDE queryNamed");
       //std::cout << results_map.size() << std::endl;
       BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
         load_map_ = *map;
       }
+      ROS_WARN("ERROR?");
+      ROS_WARN_STREAM(load_map_.info);
 
+      angle_ = load_map_.info.angle_offset;
+      direction_ = load_map_.info.direction;
       map_frame_ = load_map_.info.map_frame;
       robot_radius_ = load_map_.info.robot_radius;
       terrain_y_ = load_map_.info.sizey;
