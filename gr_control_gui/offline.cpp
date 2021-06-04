@@ -211,7 +211,7 @@ void MyViz::saveMap(){
         edge.edge_id = e.first + "_" + e.second;
         edge.node = e.second;
         //At the moment deprected
-        edge.action = "sbpl_action";
+        //edge.action = "sbpl_action";
         topo_node.edges.push_back(edge);
       }
     }
@@ -223,6 +223,8 @@ void MyViz::saveMap(){
   topo_map.info.sizex = terrain_x_;
   topo_map.info.sizey = terrain_y_;
   topo_map.info.robot_radius = robot_radius_;
+  topo_map.info.direction = direction_;
+  topo_map.info.angle_offset = angle_;
 
   std::ifstream in("/tmp/lastmap_id.txt");
   //out << storing_id_;

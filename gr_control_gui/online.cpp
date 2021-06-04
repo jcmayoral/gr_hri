@@ -205,7 +205,7 @@ void MyViz::visualizeRowMap(int row){
   std::vector<std::pair<float,float> > vector;
 
   ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/9.0);
 
   int id, index_1, index_2 = 0;
   int col;
@@ -214,6 +214,12 @@ void MyViz::visualizeRowMap(int row){
   int min_index = row*y_cells_;
   int max_index = (row*y_cells_) + y_cells_;
   double yaw =(row%2) ? -1.57 : 1.57;
+  yaw+=angle_;
+
+  float tx = 0.0;
+  float ty = 0.0;
+  float tx1 = 0.0;
+  float ty1 = 0.0;
 
   std::cout << "start " << min_index << " end " << max_index << std::endl;
 
@@ -227,8 +233,10 @@ void MyViz::visualizeRowMap(int row){
 
     col = id/y_cells_;
     temporal_marker.id = id;
-    temporal_marker.pose.position.x = vector[id].first;
-    temporal_marker.pose.position.y = vector[id].second;
+    tx = vector[id].first;
+    ty = vector[id].second;
+    temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
+    temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0.0, 0.0, yaw);
     geometry_msgs::Quaternion quat_msg;
@@ -280,11 +288,13 @@ void MyViz::visualizeRowMap(int row){
 
     temporal_edges.id = 100+id;
     temporal_edges.text = id_str + "::" + next_id_str; 
-    temporal_point.x = vector[id].first;
-    temporal_point.y = vector[id].second;
+    tx1 = vector[id+1].first;
+    ty1 = vector[id+1].second;
+    temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
+    temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
     temporal_edges.points.push_back(temporal_point);
-    temporal_point.x = vector[id+1].first;
-    temporal_point.y = vector[id+1].second;
+    temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
+    temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
     //Marker
     temporal_edges.points.push_back(temporal_point);
     //Edges ids
