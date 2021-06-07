@@ -196,7 +196,7 @@ void MyCommonViz::visualizeMap(){
 
   std::vector<std::pair<float,float> > vector;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/9.0);
 
   int id, index_1, index_2 = 0;
   int col;
@@ -345,7 +345,7 @@ void MyCommonViz::publishRegion(){
   region.points.push_back(p);
 
 
-  tx = (terrain_x_ + robot_radius_)*direction_;
+  tx = (terrain_x_ + 2*robot_radius_)*direction_;
   ty = -robot_radius_;
 
   p.x = tx * cos(angle_) - ty *sin(angle_);
@@ -353,7 +353,7 @@ void MyCommonViz::publishRegion(){
   p.z = 0.0;
   region.points.push_back(p);
 
-  tx = (terrain_x_ + robot_radius_)*direction_;
+  tx = (terrain_x_ + 2*robot_radius_)*direction_;
   ty = terrain_y_ + robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);

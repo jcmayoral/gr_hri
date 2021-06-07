@@ -17,6 +17,8 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
+#include <QCheckBox>
+
 namespace rviz
 {
 class Display;
@@ -44,6 +46,8 @@ namespace gr_control_gui{
       void executeCycle(int cycle);
       void visualizeRowMap(int row);
       void setMode(QListWidgetItem* item);
+      void setNViaPoints(int nvia);
+      void setSpan(int span);
 
     private:
       int current_row_;
@@ -59,8 +63,12 @@ namespace gr_control_gui{
 
       std::thread* t1;
       int nviapoints_;
+      int span_;
       int mode_;
-
+      QListWidget* mode_selector_;
+      QCheckBox *checkbox_;
+      QSpinBox* span_spinbox_;
+      bool resume_;
   };
 };
   // END_TUTORIAL

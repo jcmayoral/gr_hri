@@ -5,7 +5,7 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-   gr_action_server_("gr_simple_manager", true), nviapoints_{9}, mode_{0}
+   gr_action_server_("gr_simple_manager", true), nviapoints_{9}, mode_{0}, span_{1}
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
@@ -30,27 +30,47 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( column_label, 2, 0 );
   controls_layout->addWidget( column_spinbox, 2, 1 );
 
+
+  QSpinBox* via_spinbox = new QSpinBox;
+  via_spinbox->setRange(0, 50);
+  via_spinbox->setSingleStep(1);
+  via_spinbox->setValue(nviapoints_);
+  controls_layout->addWidget( new QLabel("Number of ViaPoints"), 2, 2 );
+  controls_layout->addWidget( via_spinbox, 2, 3 );
+
+
   QLabel* mode_label = new QLabel("Mode Selector");
   //QListView* mode_selector = new QListView;
   //mode_selector.addItem(QString("mode 0"));
-  QListWidget* mode_selector = new QListWidget;
-  mode_selector->addItems(QStringList({"Visit All","Visit Some","Just End"}));
-  mode_selector->setMaximumHeight(100);
+  mode_selector_ = new QListWidget;
+  mode_selector_->addItems(QStringList({"Visit All","Just End","Visit Some"}));
+  mode_selector_->setMaximumHeight(100);
   //mode_selector,addItem(QString("VISIT ALL"));
   //mode_selector,addItem(QString("VISIT ALL"));
   //mode_selector,addItem(QString("VISIT ALL"));
 
   controls_layout->addWidget( mode_label, 3, 0 );
-  controls_layout->addWidget( mode_selector, 3, 1 );
+  controls_layout->addWidget( mode_selector_, 3, 1 );
+
+  span_spinbox_ = new QSpinBox;
+  span_spinbox_->setRange(0, nviapoints_);
+  span_spinbox_->setSingleStep(1);
+  span_spinbox_->setValue(span_);
+  controls_layout->addWidget( new QLabel("Skip N ViaPoints"), 3, 2 );
+  controls_layout->addWidget( span_spinbox_, 3, 3 );
+
 
   QPushButton* execute_map = new QPushButton ("Execute Map");
-  controls_layout->addWidget( execute_map, 4, 0 );
+  checkbox_ = new QCheckBox("Resume last execution", this);
+  controls_layout->addWidget( checkbox_, 4, 0 );
+  controls_layout->addWidget( execute_map, 4, 1 );
+
 
   QLabel* time_to_go_label = new QLabel("Expected Time To Next Goal");
   time_to_go = new QLabel("0");
   QFont f( "Arial", 30, QFont::Bold);
   time_to_go->setFont(f);
-  //time_to_go->setFixedHeight(50);
+  time_to_go->setFixedHeight(50);
   //time_to_go->setFixedWidth(50);
 
   controls_layout->addWidget( time_to_go_label, 5, 0 );
@@ -65,8 +85,10 @@ MyViz::MyViz( QWidget* parent )
   // Make signal/slot connections.
   connect( execute_map, SIGNAL( released( )), this, SLOT( executeTopoMap( )));
   connect( column_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setDesiredRow(int)));
-  connect( mode_selector, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setMode(QListWidgetItem*)));
-  
+  connect( mode_selector_, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setMode(QListWidgetItem*)));
+  connect( via_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setNViaPoints(int)));
+  connect( span_spinbox_, SIGNAL(valueChanged(int)), this, SLOT(setSpan(int)));
+
   /*
   manager_->setFixedFrame("workspace");
   manager_->initialize();
@@ -74,6 +96,16 @@ MyViz::MyViz( QWidget* parent )
   */
   update_client_ = local_nh.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
   time_to_go_sub_ = local_nh.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
+}
+
+void MyViz::setNViaPoints(int nvia){
+  span_spinbox_->setRange(0, nviapoints_);
+  span_spinbox_->setValue(1);
+  nviapoints_ = nvia;
+}
+
+void MyViz::setSpan(int span){
+  span_ = span;
 }
 
 void MyViz::timetogoCB(const std_msgs::Float32ConstPtr time2go){
@@ -93,7 +125,8 @@ MyViz::~MyViz()
 }
 
 void MyViz::setMode(QListWidgetItem* item ){
-  std::cout << "CHANGED "<< std::endl;
+  mode_ = mode_selector_->row(item);
+  std::cout << "CHANGE MODE TO "<< mode_ << std::endl;
 }
 
 void MyViz::setFrame(QString frame){
@@ -138,6 +171,8 @@ void MyViz::executeCycle(int cycle){
   */
   ros::Duration(1.0).sleep();
   gr_action_msgs::GRNavigationGoal goal;
+  goal.mode = mode_;
+  goal.span = span_;
   goal.plan = online_marker_array_;
   //goal.start_node = std::string("start_node").c_str();
   gr_action_server_.sendGoal(goal);
@@ -221,16 +256,30 @@ void MyViz::visualizeRowMap(int row){
   std::vector<std::pair<float,float> > vector;
 
   ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/nviapoints_);
+  //x_cells => column
+  map_utils_->calculateCenters(vector,  x_cells_, nviapoints_, robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(nviapoints_-1));
 
   int id, index_1, index_2 = 0;
   int col;
 
   //TODO VISUALIZE ALL and current row 
   int min_index = row*y_cells_;
-  int max_index = (row*y_cells_) + y_cells_;
+  int max_index = ( row+1) * y_cells_ -1;
+
+  //int max_index = min_index + nviapoints_;
+
+  //if (row%2){
+   // max_index = min_index + nviapoints_;
+    //std::swap(min_index, max_index);
+  //}
+
   double yaw =(row%2) ? -1.57 : 1.57;
   yaw+=angle_;
+  std::cout << "SIZE OF VECTOR " << vector.size() << std::endl;
+
+  int npointspercolumn = vector.size()/x_cells_;
+  std::cout <<" points per column " << npointspercolumn << "INDZ " << npointspercolumn*row << std::endl;
+
 
   float tx = 0.0;
   float ty = 0.0;
