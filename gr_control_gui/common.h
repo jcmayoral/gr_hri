@@ -8,6 +8,9 @@
 #include <QSlider>
 #include <QLabel>
 #include <QPushButton>
+#include <QListView>
+#include <QList>
+#include <QListWidget>
 
 #include <QGridLayout>
 #include <QVBoxLayout>

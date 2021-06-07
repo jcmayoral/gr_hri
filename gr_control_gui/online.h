@@ -24,6 +24,7 @@ class RenderPanel;
 class VisualizationManager;
 }
 
+
 namespace gr_control_gui{
   typedef std::map<std::string, geometry_msgs::Pose> NodeMap;
   typedef std::pair<std::string, std::string> Edges;
@@ -42,6 +43,7 @@ namespace gr_control_gui{
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
       void executeCycle(int cycle);
       void visualizeRowMap(int row);
+      void setMode(QListWidgetItem* item);
 
     private:
       int current_row_;
@@ -56,6 +58,8 @@ namespace gr_control_gui{
       ros::Subscriber time_to_go_sub_;
 
       std::thread* t1;
+      int nviapoints_;
+      int mode_;
 
   };
 };

@@ -83,7 +83,6 @@ void MyCommonViz::loadMap(){
   //out << storing_id_;
   in >> storing_id_;
   in.close();
-  std::cout << "BEFORE " << storing_id_ << std::endl;
 
   std::string map_id("wish_map_move_base");
   if (!storing_id_.empty()){
@@ -92,12 +91,10 @@ void MyCommonViz::loadMap(){
 
     if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
       //message_store_->updateNamed(map_id, topo_map);
-      ROS_INFO("INSIDE queryNamed");
       //std::cout << results_map.size() << std::endl;
       BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
         load_map_ = *map;
       }
-      ROS_WARN("ERROR?");
       ROS_WARN_STREAM(load_map_.info);
 
       angle_ = load_map_.info.angle_offset;
@@ -112,8 +109,6 @@ void MyCommonViz::loadMap(){
 
       manager_->setFixedFrame(map_frame_.c_str());
 
-      ROS_INFO_STREAM(load_map_.info);
-      ROS_INFO_STREAM(x_cells_ << "ZZZ " << y_cells_);
       ROS_ERROR("YEI");
       visualizeMap();
       return;
@@ -202,8 +197,6 @@ void MyCommonViz::visualizeMap(){
   std::vector<std::pair<float,float> > vector;
 
   map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/9.0);
-  std::cout << y_cells_ << " cells "<< terrain_y_ <<" -> terrain Y" << robot_radius_ << " -> RR" << std::endl;
-  std::cout << terrain_y_/2 << std::endl;
 
   int id, index_1, index_2 = 0;
   int col;

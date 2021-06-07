@@ -5,7 +5,7 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-   gr_action_server_("gr_simple_manager", true)
+   gr_action_server_("gr_simple_manager", true), nviapoints_{9}, mode_{0}
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
@@ -25,12 +25,26 @@ MyViz::MyViz( QWidget* parent )
   column_spinbox->setSingleStep(1);
   column_spinbox->setValue(0);
 
-  QPushButton* execute_map = new QPushButton ("Execute Map");
 
   QGridLayout* controls_layout = new QGridLayout();
   controls_layout->addWidget( column_label, 2, 0 );
   controls_layout->addWidget( column_spinbox, 2, 1 );
-  controls_layout->addWidget( execute_map, 3, 0 );
+
+  QLabel* mode_label = new QLabel("Mode Selector");
+  //QListView* mode_selector = new QListView;
+  //mode_selector.addItem(QString("mode 0"));
+  QListWidget* mode_selector = new QListWidget;
+  mode_selector->addItems(QStringList({"Visit All","Visit Some","Just End"}));
+  mode_selector->setMaximumHeight(100);
+  //mode_selector,addItem(QString("VISIT ALL"));
+  //mode_selector,addItem(QString("VISIT ALL"));
+  //mode_selector,addItem(QString("VISIT ALL"));
+
+  controls_layout->addWidget( mode_label, 3, 0 );
+  controls_layout->addWidget( mode_selector, 3, 1 );
+
+  QPushButton* execute_map = new QPushButton ("Execute Map");
+  controls_layout->addWidget( execute_map, 4, 0 );
 
   QLabel* time_to_go_label = new QLabel("Expected Time To Next Goal");
   time_to_go = new QLabel("0");
@@ -39,8 +53,8 @@ MyViz::MyViz( QWidget* parent )
   //time_to_go->setFixedHeight(50);
   //time_to_go->setFixedWidth(50);
 
-  controls_layout->addWidget( time_to_go_label, 4, 0 );
-  controls_layout->addWidget( time_to_go, 4, 1 );
+  controls_layout->addWidget( time_to_go_label, 5, 0 );
+  controls_layout->addWidget( time_to_go, 5, 1 );
 
   // Construct and lay out render panel.
   main_layout_->addLayout( controls_layout );
@@ -51,6 +65,7 @@ MyViz::MyViz( QWidget* parent )
   // Make signal/slot connections.
   connect( execute_map, SIGNAL( released( )), this, SLOT( executeTopoMap( )));
   connect( column_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setDesiredRow(int)));
+  connect( mode_selector, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setMode(QListWidgetItem*)));
   
   /*
   manager_->setFixedFrame("workspace");
@@ -68,16 +83,17 @@ void MyViz::timetogoCB(const std_msgs::Float32ConstPtr time2go){
 // Destructor.
 MyViz::~MyViz()
 {
-  ROS_ERROR("D onlie init");
-
   //deleteTopoMap();
   time_to_go_sub_.shutdown();
   online_map_publisher_.shutdown();
   //region_publisher_.shutdown();
   reset_publisher_.shutdown();
   update_client_.shutdown();
-  ROS_ERROR("D onlie end");
 
+}
+
+void MyViz::setMode(QListWidgetItem* item ){
+  std::cout << "CHANGED "<< std::endl;
 }
 
 void MyViz::setFrame(QString frame){
@@ -205,7 +221,7 @@ void MyViz::visualizeRowMap(int row){
   std::vector<std::pair<float,float> > vector;
 
   ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, direction_*1.0, (terrain_y_-robot_radius_)/nviapoints_);
 
   int id, index_1, index_2 = 0;
   int col;
