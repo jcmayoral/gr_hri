@@ -135,7 +135,6 @@ void MyViz::setFrame(QString frame){
 
 void MyViz::setDesiredRow(int row){
   id_maxnumberrows_ = x_cells_-1;
-  std::cout << "MAX " << x_cells_ << std::endl;
 
   if (row < id_maxnumberrows_){
     current_row_ = std::min(id_maxnumberrows_, row);
@@ -257,7 +256,7 @@ void MyViz::visualizeRowMap(int row){
 
   ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
   //x_cells => column
-  map_utils_->calculateCenters(vector,  x_cells_, nviapoints_, robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(nviapoints_-1));
+  map_utils_->calculateCenters(vector,  x_cells_, nviapoints_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(nviapoints_-1));
 
   int id, index_1, index_2 = 0;
   int col;
@@ -371,7 +370,7 @@ void MyViz::visualizeRowMap(int row){
     //Edges ids
 
     //birectional
-    std::cout << id_str << " TO " <<next_id_str << std::endl;
+    //std::cout << id_str << " TO " <<next_id_str << std::endl;
     //edges_.emplace_back(id_str, next_id_str);
     //edges_.emplace_back(next_id_str,id_str);
 

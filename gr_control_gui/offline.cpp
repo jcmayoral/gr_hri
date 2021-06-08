@@ -56,9 +56,24 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( angle_slider, 2, 1 );
   controls_layout->addWidget( angle_text_, 2, 2);
 
-  controls_layout->addWidget( save_topological_map, 3, 0 );
-  controls_layout->addWidget( delete_topological_map, 3, 1);
-  controls_layout->addWidget( checkbox_, 3, 2);
+
+  QLabel* robot_label = new QLabel( "Robot Radius" );
+  QSlider* radius_slider = new QSlider( Qt::Horizontal );
+  radius_slider->setMinimum( 1 );
+  radius_slider->setMaximum( 20 );
+  radius_slider->setValue( ceil(robot_radius_*10) );
+  controls_layout->addWidget( robot_label, 3, 0 );
+  controls_layout->addWidget( radius_slider, 3, 1 );
+
+  radius_text_ = new QTextEdit(QString(std::to_string(robot_radius_).c_str()));
+  radius_text_->setReadOnly(true);
+  radius_text_->setMaximumSize(QSize(100, 50));
+  controls_layout->addWidget( radius_text_, 3, 2);
+
+
+  controls_layout->addWidget( save_topological_map, 4, 0 );
+  controls_layout->addWidget( delete_topological_map, 4, 1);
+  controls_layout->addWidget( checkbox_, 4, 2);
 
 
   QLabel* map_frame_label = new QLabel("Map Frame");
@@ -79,6 +94,7 @@ MyViz::MyViz( QWidget* parent )
   connect( width_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
   connect( height_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainX(  int)));
   connect( angle_slider, SIGNAL( valueChanged( int )), this, SLOT( setAngle(  int )));
+  connect( radius_slider, SIGNAL( valueChanged( int )), this, SLOT( setRadius(  int )));
 
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
@@ -105,7 +121,7 @@ bool MyViz::setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREd
   y_cells_ = 10;//ceil(terrain_y_/2);
 
   terrain_x_ = req.height_meters;
-  x_cells_ = ceil(terrain_x_/1);
+  x_cells_ = ceil(terrain_x_/(2*robot_radius_));
   visualizeMap();
   return true;
 }
@@ -149,10 +165,18 @@ void MyViz::setTerrainY( int value){
   visualizeMap();
 }
 
+void MyViz::setRadius( int value){
+  robot_radius_ = value*0.1;
+  std::cout << "ROBOT Radius" << robot_radius_ << std::endl;
+  radius_text_->setText(std::to_string(robot_radius_).c_str());
+  visualizeMap();
+}
+
 void MyViz::setTerrainX( int value ){
   terrain_x_ = value;
   x_text_->setText(std::to_string(value).c_str());
-  x_cells_ = ceil(value/1);
+  x_cells_ = ceil(terrain_x_/(2*robot_radius_));
+  std::cout << "XCELLS " << x_cells_ << std::endl;
   visualizeMap();
 }
 

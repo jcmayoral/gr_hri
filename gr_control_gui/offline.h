@@ -64,6 +64,8 @@ namespace gr_control_gui{
       void setTerrainY( int value);
       void setTerrainX( int value);
       void setAngle( int value );
+      void setRadius( int value );
+
       void setDirection(int state);
       void saveMap();
       void deleteTopoMap();
@@ -79,6 +81,8 @@ namespace gr_control_gui{
       QTextEdit* angle_text_;
       QTextEdit* x_text_;
       QTextEdit* y_text_;
+      QTextEdit* radius_text_;
+
       //Direction
       QCheckBox *checkbox_;
 

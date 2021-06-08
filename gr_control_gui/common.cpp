@@ -103,7 +103,8 @@ void MyCommonViz::loadMap(){
       robot_radius_ = load_map_.info.robot_radius;
       terrain_y_ = load_map_.info.sizey;
       terrain_x_ = load_map_.info.sizex;
-      x_cells_ =  ceil(terrain_x_/1);
+      x_cells_ = ceil(terrain_x_/(2*robot_radius_));
+      std::cout << "MAX XCELLS " <<  x_cells_ << std::endl;
       y_cells_ =  10;//ceil(terrain_y_/1);
       id_maxnumberrows_ = x_cells_-1;
 
@@ -195,8 +196,9 @@ void MyCommonViz::visualizeMap(){
 
 
   std::vector<std::pair<float,float> > vector;
+  std::cout << "visualize xcells " << x_cells_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/9.0);
 
   int id, index_1, index_2 = 0;
   int col;
@@ -337,8 +339,8 @@ void MyCommonViz::publishRegion(){
 
   geometry_msgs::Point p;
 
-  tx = -robot_radius_*direction_;
-  ty = -robot_radius_;
+  tx = -2*robot_radius_*direction_;
+  ty = -2*robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
@@ -361,15 +363,15 @@ void MyCommonViz::publishRegion(){
   region.points.push_back(p);
 
 
-  tx = -robot_radius_*direction_;
+  tx = -2*robot_radius_*direction_;
   ty = terrain_y_ + robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
   
-  tx = -robot_radius_*direction_;
-  ty = -robot_radius_;
+  tx = -2*robot_radius_*direction_;
+  ty = -2*robot_radius_;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
