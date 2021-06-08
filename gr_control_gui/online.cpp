@@ -190,13 +190,12 @@ void MyViz::executeCycle(int cycle){
   //goal.start_node = std::string("start_node").c_str();
   gr_action_client_.sendGoal(goal);
   bool finished_before_timeout = gr_action_client_.waitForResult();
-  ROS_INFO("A");
   actionlib::SimpleClientGoalState state = gr_action_client_.getState();
   ROS_INFO("Action finished: %s",state.toString().c_str());
 
   ROS_INFO("B");
   if (!finished_before_timeout){
-    ROS_ERROR("ERROR ");
+    ROS_ERROR("Finished with error ");
     cycle = id_maxnumberrows_ + 1;
   }
   //Update map if topological + metric map is used
