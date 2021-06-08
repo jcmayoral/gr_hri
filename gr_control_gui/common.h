@@ -88,6 +88,7 @@ namespace gr_control_gui{
       //TODO THIS ARE SAME
       int nrows_;
       int id_maxnumberrows_;
+      int default_npoints_;
 
       //map rotation
       float angle_;

@@ -4,7 +4,7 @@ using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
                  nrows_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
-                 angle_{0.0}, direction_{-1}{
+                 angle_{0.0}, direction_{-1}, default_npoints_{3}{
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
@@ -105,7 +105,7 @@ void MyCommonViz::loadMap(){
       terrain_x_ = load_map_.info.sizex;
       nrows_ = ceil(terrain_x_/(2*robot_radius_));
       std::cout << "MAX XCELLS " <<  nrows_ << std::endl;
-      y_cells_ =  10;//ceil(terrain_y_/1);
+      y_cells_ =  default_npoints_;//ceil(terrain_y_/1);
       id_maxnumberrows_ = nrows_-1;
 
       manager_->setFixedFrame(map_frame_.c_str());
@@ -183,7 +183,7 @@ void MyCommonViz::visualizeMap(){
   std::vector<std::pair<float,float> > vector;
   std::cout << "visualize xcells " << nrows_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
 
-  map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(default_npoints_-1));
 
   int id, index_1, index_2 = 0;
   int col;
