@@ -103,6 +103,12 @@ MyViz::MyViz( QWidget* parent )
   time_to_go_sub_ = local_nh.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
 }
 
+void MyViz::feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback)
+{
+  ROS_INFO_STREAM(*feedback);
+}
+
+
 void MyViz::setNViaPoints(int nvia){
   span_spinbox_->setRange(0, nviapoints_);
   span_spinbox_->setValue(1);
@@ -188,7 +194,11 @@ void MyViz::executeCycle(int cycle){
   goal.row_id = current_row_;
   goal.plan = online_marker_array_;
   //goal.start_node = std::string("start_node").c_str();
-  gr_action_client_.sendGoal(goal);
+  gr_action_client_.sendGoal(goal, MyClient::SimpleDoneCallback(),
+              MyClient::SimpleActiveCallback(),
+              boost::bind(&MyViz::feedbackCb, this, _1));
+
+
   bool finished_before_timeout = gr_action_client_.waitForResult();
   actionlib::SimpleClientGoalState state = gr_action_client_.getState();
   ROS_INFO("Action finished: %s",state.toString().c_str());

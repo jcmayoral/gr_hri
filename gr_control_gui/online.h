@@ -31,6 +31,8 @@ class VisualizationManager;
 namespace gr_control_gui{
   typedef std::map<std::string, geometry_msgs::Pose> NodeMap;
   typedef std::pair<std::string, std::string> Edges;
+  typedef actionlib::SimpleActionClient<gr_action_msgs::GRNavigationAction> MyClient;
+
 
   class MyViz: public MyCommonViz{
     Q_OBJECT
@@ -53,6 +55,8 @@ namespace gr_control_gui{
       void setSpan(int span);
       void updateAfterLoad();
 
+      void feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback);
+
     private:
       int current_row_;
       visualization_msgs::MarkerArray online_marker_array_;
@@ -60,7 +64,7 @@ namespace gr_control_gui{
       ros::Publisher online_map_publisher_;
       ros::Publisher reset_publisher_;
       ros::ServiceClient update_client_;
-      actionlib::SimpleActionClient<gr_action_msgs::GRNavigationAction> gr_action_client_;
+      MyClient gr_action_client_;
 
       QLabel* time_to_go;
       ros::Subscriber time_to_go_sub_;
