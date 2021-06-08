@@ -378,3 +378,9 @@ void MyViz::visualizeRowMap(int row){
 
   online_map_publisher_.publish(online_marker_array_);
 }
+
+
+
+void MyViz::updateAfterLoad() {
+  std::cout << "UPDate AfterLoad on line " << std::endl;
+}

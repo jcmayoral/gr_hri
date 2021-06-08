@@ -9,20 +9,20 @@ MyViz::MyViz( QWidget* parent )
   ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct and lay out labels and slider controls.
   QLabel* width_label = new QLabel("Y Terrain" );
-  QSlider* width_slider = new QSlider( Qt::Horizontal );
-  width_slider->setMinimum( 1.00 );
-  width_slider->setMaximum( 100.0 );
+  width_slider_ = new QSlider( Qt::Horizontal );
+  width_slider_->setMinimum( 1.00 );
+  width_slider_->setMaximum( 100.0 );
 
   QLabel* height_label = new QLabel( "X Terrain" );
-  QSlider* height_slider = new QSlider( Qt::Horizontal );
-  QSlider* angle_slider = new QSlider( Qt::Horizontal );
+  height_slider_ = new QSlider( Qt::Horizontal );
+  angle_slider_ = new QSlider( Qt::Horizontal );
 
-  height_slider->setMinimum( 1.0 );
-  height_slider->setMaximum( 100.0 );
+  height_slider_->setMinimum( 1.0 );
+  height_slider_->setMaximum( 100.0 );
 
   QLabel* angle_label = new QLabel( "Angle " );
-  angle_slider->setMinimum(-180);
-  angle_slider->setMaximum(180);
+  angle_slider_->setMinimum(-180);
+  angle_slider_->setMaximum(180);
 
   x_text_ = new QTextEdit(QString("0.0"));
   x_text_->setReadOnly(true);
@@ -45,25 +45,25 @@ MyViz::MyViz( QWidget* parent )
 
   QGridLayout* controls_layout = new QGridLayout();
   controls_layout->addWidget( width_label, 0, 0 );
-  controls_layout->addWidget( width_slider, 0, 1 );
+  controls_layout->addWidget( width_slider_, 0, 1 );
   controls_layout->addWidget( y_text_, 0, 2);
 
   controls_layout->addWidget( height_label, 1, 0 );
-  controls_layout->addWidget( height_slider, 1, 1 );
+  controls_layout->addWidget( height_slider_, 1, 1 );
   controls_layout->addWidget( x_text_, 1, 2);
 
   controls_layout->addWidget( angle_label, 2, 0 );
-  controls_layout->addWidget( angle_slider, 2, 1 );
+  controls_layout->addWidget( angle_slider_, 2, 1 );
   controls_layout->addWidget( angle_text_, 2, 2);
 
 
   QLabel* robot_label = new QLabel( "Robot Radius" );
-  QSlider* radius_slider = new QSlider( Qt::Horizontal );
-  radius_slider->setMinimum( 1 );
-  radius_slider->setMaximum( 20 );
-  radius_slider->setValue( ceil(robot_radius_*10) );
+  radius_slider_ = new QSlider( Qt::Horizontal );
+  radius_slider_->setMinimum( 1 );
+  radius_slider_->setMaximum( 20 );
+  radius_slider_->setValue( ceil(robot_radius_*10) );
   controls_layout->addWidget( robot_label, 3, 0 );
-  controls_layout->addWidget( radius_slider, 3, 1 );
+  controls_layout->addWidget( radius_slider_, 3, 1 );
 
   radius_text_ = new QTextEdit(QString(std::to_string(robot_radius_).c_str()));
   radius_text_->setReadOnly(true);
@@ -91,10 +91,10 @@ MyViz::MyViz( QWidget* parent )
   //setLayout( main_layout );
 
   // Make signal/slot connections.
-  connect( width_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
-  connect( height_slider, SIGNAL( valueChanged( int )), this, SLOT( setTerrainX(  int)));
-  connect( angle_slider, SIGNAL( valueChanged( int )), this, SLOT( setAngle(  int )));
-  connect( radius_slider, SIGNAL( valueChanged( int )), this, SLOT( setRadius(  int )));
+  connect( width_slider_, SIGNAL( valueChanged( int )), this, SLOT( setTerrainY(  int )));
+  connect( height_slider_, SIGNAL( valueChanged( int )), this, SLOT( setTerrainX(  int)));
+  connect( angle_slider_, SIGNAL( valueChanged( int )), this, SLOT( setAngle(  int )));
+  connect( radius_slider_, SIGNAL( valueChanged( int )), this, SLOT( setRadius(  int )));
 
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
@@ -103,8 +103,8 @@ MyViz::MyViz( QWidget* parent )
   connect( checkbox_, SIGNAL(stateChanged(int )), this, SLOT(setDirection( int )));
 
   // Initialize the slider values.
-  height_slider->setValue( 2.0 );
-  width_slider->setValue( 2.0 );
+  height_slider_->setValue( terrain_x_ );
+  width_slider_->setValue( terrain_y_);
 
   manager_->setFixedFrame(map_frame_.c_str());
   manager_->initialize();
@@ -183,6 +183,20 @@ void MyViz::deleteTopoMap(){
     std::cout << "deleted "<< storing_id_ << std::endl;
     storing_id_ = "";
     std::remove("/tmp/lastmap_id.txt");
+}
+
+void MyViz::updateAfterLoad() {
+  std::cout << "UPDate AfterLoad off line " << std::endl;
+  radius_text_->setText(std::to_string(robot_radius_).c_str());
+  radius_slider_->setValue( ceil(robot_radius_*10) );
+
+  height_slider_->setValue( int(terrain_x_) );
+  width_slider_->setValue( int(terrain_y_) );
+  angle_slider_->setValue( int(angle_*180/M_PI) );
+
+  angle_text_->setText(std::to_string(angle_).c_str());
+  x_text_->setText(std::to_string(terrain_x_).c_str());
+  y_text_->setText(std::to_string(terrain_y_).c_str());
 }
 
 void MyViz::saveMap(){

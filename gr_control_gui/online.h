@@ -48,6 +48,7 @@ namespace gr_control_gui{
       void setMode(QListWidgetItem* item);
       void setNViaPoints(int nvia);
       void setSpan(int span);
+      void updateAfterLoad();
 
     private:
       int current_row_;

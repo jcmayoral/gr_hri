@@ -112,10 +112,12 @@ void MyCommonViz::loadMap(){
 
       ROS_ERROR("YEI");
       visualizeMap();
+      updateAfterLoad();
       return;
     }
 
 
+    /*
      std::vector< boost::shared_ptr<navigation_msgs::TopologicalNode> > results_node;
         //On this version the map is stored by NAME Not anymore nodes stored
         ROS_WARN("QUERY NODES");
@@ -126,9 +128,10 @@ void MyCommonViz::loadMap(){
                 ROS_DEBUG_STREAM("Got by name: " << *node);
                 load_map_.nodes.push_back(*node);
             }
+          
            return;
         }
-
+        */
     std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
   }
 }

@@ -72,6 +72,8 @@ namespace gr_control_gui{
       void setFrame(QString frame);
       bool setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res);
       //void execute_cb(const GREdgesActionGoal& goal);
+      void updateAfterLoad();
+    
     private:
       //boost::shared_ptr<actionlib::SimpleActionServer<GREdgesAction>> server_;
       int current_row_;
@@ -85,6 +87,11 @@ namespace gr_control_gui{
 
       //Direction
       QCheckBox *checkbox_;
+
+      QSlider* height_slider_;
+      QSlider* angle_slider_;
+      QSlider* width_slider_;
+      QSlider* radius_slider_;
 
   };
 };

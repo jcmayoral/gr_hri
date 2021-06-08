@@ -56,6 +56,9 @@ namespace gr_control_gui{
       void loadGUI();
       void visualizeMap();
       void publishRegion();
+      virtual void updateAfterLoad() {
+        
+      };
 
       private Q_SLOTS:
 
