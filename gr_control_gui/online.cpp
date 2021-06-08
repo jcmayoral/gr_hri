@@ -192,10 +192,10 @@ void MyViz::executeCycle(int cycle){
   bool finished_before_timeout = gr_action_client_.waitForResult();
   actionlib::SimpleClientGoalState state = gr_action_client_.getState();
   ROS_INFO("Action finished: %s",state.toString().c_str());
-
-  ROS_INFO("B");
-  if (!finished_before_timeout){
+  if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED ||
+      state == actionlib::SimpleClientGoalState::StateEnum::REJECTED){
     ROS_ERROR("Finished with error ");
+    return;
     cycle = id_maxnumberrows_ + 1;
   }
   //Update map if topological + metric map is used
