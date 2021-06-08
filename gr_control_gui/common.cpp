@@ -3,7 +3,7 @@
 using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
-                 x_cells_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
+                 nrows_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
                  angle_{0.0}, direction_{-1}{
   ROS_INFO("COMMON CONTRUCTOR");
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
@@ -103,10 +103,10 @@ void MyCommonViz::loadMap(){
       robot_radius_ = load_map_.info.robot_radius;
       terrain_y_ = load_map_.info.sizey;
       terrain_x_ = load_map_.info.sizex;
-      x_cells_ = ceil(terrain_x_/(2*robot_radius_));
-      std::cout << "MAX XCELLS " <<  x_cells_ << std::endl;
+      nrows_ = ceil(terrain_x_/(2*robot_radius_));
+      std::cout << "MAX XCELLS " <<  nrows_ << std::endl;
       y_cells_ =  10;//ceil(terrain_y_/1);
-      id_maxnumberrows_ = x_cells_-1;
+      id_maxnumberrows_ = nrows_-1;
 
       manager_->setFixedFrame(map_frame_.c_str());
 
@@ -130,22 +130,7 @@ void MyCommonViz::loadMap(){
         }
 
     std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
-    
-    /*
-    if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id, results_map)) {
-      ROS_INFO("AAAA");
-      load_map_.nodes.clear();
-      std::cout << results_map.size() << std::endl;
-      BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
-        ROS_INFO_STREAM("Got by name: " << *map);
-        load_map_ = *map;
-      }
-      ROS_INFO_STREAM(load_map_);
-      return;
-    }
-    */
   }
-
 }
 
 void MyCommonViz::visualizeMap(){
@@ -196,9 +181,9 @@ void MyCommonViz::visualizeMap(){
 
 
   std::vector<std::pair<float,float> > vector;
-  std::cout << "visualize xcells " << x_cells_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
+  std::cout << "visualize xcells " << nrows_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
 
-  map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/9.0);
+  map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/9.0);
 
   int id, index_1, index_2 = 0;
   int col;
@@ -209,13 +194,11 @@ void MyCommonViz::visualizeMap(){
   float ty1 = 0.0;
 
   //TODO VISUALIZE ALL and current row 
-  for (int current_row = 0; current_row < x_cells_; current_row++){
+  for (int current_row = 0; current_row < nrows_; current_row++){
     int min_index = current_row*y_cells_;
     int max_index = (current_row*y_cells_) + y_cells_;
     double yaw =(current_row%2) ? -1.57 : 1.57;
     yaw+=angle_;
-
-    //std::cout << "start " << min_index << " end " << max_index << std::endl;
 
     for( auto id = min_index; id< max_index; ++id){
       //Storing Nodes
@@ -236,49 +219,11 @@ void MyCommonViz::visualizeMap(){
       std::string next_id_str("error");
 
       id_str ="node_" + std::to_string(id);
-      //std::cout << id_str << " NODE STRING " << std::endl;
       next_id_str ="node_" + std::to_string(id+1);
 
-      /*
-      //Nasty Hack
-      if (id == min_index){
-        id_str = "start_node";
-        if (col%2 == 1){
-          id_str = "end_node";
-        }
-      }
-      else if(id == max_index-1){
-        id_str = "end_node";
-        if (col%2 == 1){
-          id_str = "start_node";
-        }
-      }
-      else{
-        id_str ="node_" + std::to_string(id);
-      }
-
-      if ((id+1) == min_index){
-        next_id_str = "start_node";
-        if (col%2 == 1){
-          next_id_str = "end_node";
-        }
-      }
-      else if(id == (max_index-2)){
-        next_id_str = "end_node";
-        if (col%2 == 1){
-          next_id_str = "start_node";
-        }
-      }
-      else{
-        next_id_str ="node_" + std::to_string(id+1);
-      }
-      */
-      //end of nasty hack
       node_map_[id_str] = temporal_marker.pose;
-      //ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
 
       if (id == max_index-1){
-        //skip edges of last node of the row
         continue;
       }
 
@@ -293,11 +238,6 @@ void MyCommonViz::visualizeMap(){
       temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
       //Marker
       temporal_edges.points.push_back(temporal_point);
-      //temporal_edges.points.push_back(temporal_point);
-      //Edges ids
-
-      //birectional
-      //std::cout << id_str << next_id_str << std::endl;
       edges_.emplace_back(id_str, next_id_str);
       //edges_.emplace_back(next_id_str,id_str);
 
@@ -338,40 +278,41 @@ void MyCommonViz::publishRegion(){
   float ty = 0.0;
 
   geometry_msgs::Point p;
+  float offset = 2.0;
 
-  tx = -2*robot_radius_*direction_;
-  ty = -2*robot_radius_;
+  tx = -offset*direction_;
+  ty = -offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
 
-  tx = (terrain_x_ + 2*robot_radius_)*direction_;
-  ty = -robot_radius_;
+  tx = (terrain_x_ + offset)*direction_;
+  ty = -offset;
 
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
-  tx = (terrain_x_ + 2*robot_radius_)*direction_;
-  ty = terrain_y_ + robot_radius_;
+  tx = (terrain_x_ + offset)*direction_;
+  ty = terrain_y_ + offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
 
 
-  tx = -2*robot_radius_*direction_;
-  ty = terrain_y_ + robot_radius_;
+  tx = -offset*direction_;
+  ty = terrain_y_ + offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;
   region.points.push_back(p);
   
-  tx = -2*robot_radius_*direction_;
-  ty = -2*robot_radius_;
+  tx = -offset*direction_;
+  ty = -offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
   p.z = 0.0;

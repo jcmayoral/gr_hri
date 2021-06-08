@@ -134,7 +134,7 @@ void MyViz::setFrame(QString frame){
 }
 
 void MyViz::setDesiredRow(int row){
-  id_maxnumberrows_ = x_cells_-1;
+  id_maxnumberrows_ = nrows_-1;
 
   if (row < id_maxnumberrows_){
     current_row_ = std::min(id_maxnumberrows_, row);
@@ -254,9 +254,8 @@ void MyViz::visualizeRowMap(int row){
 
   std::vector<std::pair<float,float> > vector;
 
-  ///map_utils_->calculateCenters(vector,  x_cells_, y_cells_, 1.0, 1.0);
   //x_cells => column
-  map_utils_->calculateCenters(vector,  x_cells_, nviapoints_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(nviapoints_-1));
+  map_utils_->calculateCenters(vector,  nrows_, nviapoints_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(nviapoints_-1));
 
   int id, index_1, index_2 = 0;
   int col;
@@ -276,7 +275,7 @@ void MyViz::visualizeRowMap(int row){
   yaw+=angle_;
   std::cout << "SIZE OF VECTOR " << vector.size() << std::endl;
 
-  int npointspercolumn = vector.size()/x_cells_;
+  int npointspercolumn = vector.size()/nrows_;
   std::cout <<" points per column " << npointspercolumn << " start index " << npointspercolumn*row << std::endl;
 
 

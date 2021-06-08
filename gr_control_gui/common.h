@@ -86,7 +86,7 @@ namespace gr_control_gui{
       int y_cells_;
 
       //TODO THIS ARE SAME
-      int x_cells_;
+      int nrows_;
       int id_maxnumberrows_;
 
       //map rotation

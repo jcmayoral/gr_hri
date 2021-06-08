@@ -121,7 +121,7 @@ bool MyViz::setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREd
   y_cells_ = 10;//ceil(terrain_y_/2);
 
   terrain_x_ = req.height_meters;
-  x_cells_ = ceil(terrain_x_/(2*robot_radius_));
+  nrows_ = ceil(terrain_x_/(2*robot_radius_));
   visualizeMap();
   return true;
 }
@@ -133,20 +133,6 @@ MyViz::~MyViz()
   ROS_ERROR("D offline end");
 
 }
-/*
-void MyViz::execute_cb(const GREdgesActionGoal& goal){
-  ROS_INFO("PLAN received");
-  terrain_y_ = goal->height_meters;
-  y_cells_ = ceil(terrain_y_/1);
-
-  terrain_x_ = goal.width_meters;
-  x_cells_ = ceil(terrain_x_/1);
-  visualizeMap();
-
-  server_->setSucceeded();
-
-}
-*/
 
 void MyViz::setDirection(int state){
   std::cout << "direction " << state << std::endl;
@@ -168,6 +154,8 @@ void MyViz::setTerrainY( int value){
 void MyViz::setRadius( int value){
   robot_radius_ = value*0.1;
   std::cout << "ROBOT Radius" << robot_radius_ << std::endl;
+  nrows_ = ceil(terrain_x_/(2*robot_radius_));
+  std::cout << "NRows " << nrows_ << std::endl;
   radius_text_->setText(std::to_string(robot_radius_).c_str());
   visualizeMap();
 }
@@ -175,8 +163,8 @@ void MyViz::setRadius( int value){
 void MyViz::setTerrainX( int value ){
   terrain_x_ = value;
   x_text_->setText(std::to_string(value).c_str());
-  x_cells_ = ceil(terrain_x_/(2*robot_radius_));
-  std::cout << "XCELLS " << x_cells_ << std::endl;
+  nrows_ = ceil(terrain_x_/(2*robot_radius_));
+  std::cout << "NRows " << nrows_ << std::endl;
   visualizeMap();
 }
 
