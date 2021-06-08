@@ -263,8 +263,8 @@ void MyViz::visualizeRowMap(int row){
   int col;
 
   //TODO VISUALIZE ALL and current row 
-  int min_index = row*y_cells_;
-  int max_index = ( row+1) * y_cells_ -1;
+  int min_index = row*nviapoints_;
+  int max_index = min_index + nviapoints_ -1;
 
   //int max_index = min_index + nviapoints_;
 
@@ -278,7 +278,7 @@ void MyViz::visualizeRowMap(int row){
   std::cout << "SIZE OF VECTOR " << vector.size() << std::endl;
 
   int npointspercolumn = vector.size()/x_cells_;
-  std::cout <<" points per column " << npointspercolumn << "INDZ " << npointspercolumn*row << std::endl;
+  std::cout <<" points per column " << npointspercolumn << " start index " << npointspercolumn*row << std::endl;
 
 
   float tx = 0.0;
@@ -288,15 +288,16 @@ void MyViz::visualizeRowMap(int row){
 
   std::cout << "start " << min_index << " end " << max_index << std::endl;
 
-  for( auto id = min_index; id< max_index; ++id){
+  for( auto id = min_index; id<= max_index; ++id){
     //Storing Nodes
+    std::cout << "COMPUTING " << id <<std::endl;
     std::string id_str("error");
     std::string next_id_str("error");
 
     id_str ="node_" + std::to_string(id);
     next_id_str ="node_" + std::to_string(id+1);
 
-    col = id/y_cells_;
+    col = id/nviapoints_;
     temporal_marker.id = id;
     tx = vector[id].first;
     ty = vector[id].second;
@@ -307,6 +308,7 @@ void MyViz::visualizeRowMap(int row){
     geometry_msgs::Quaternion quat_msg;
     tf2::convert(quat_tf, temporal_marker.pose.orientation);
 
+    std::cout << "COL "<< col <<std::endl;
     //Nasty Hack
     if (id == min_index){
       id_str = "start_node";
@@ -314,7 +316,7 @@ void MyViz::visualizeRowMap(int row){
         id_str = "end_node";
       }
     }
-    else if(id == max_index-1){
+    else if(id == max_index){
       id_str = "end_node";
       if (col%2 == 1){
         id_str = "start_node";
@@ -324,13 +326,17 @@ void MyViz::visualizeRowMap(int row){
       id_str ="node_" + std::to_string(id);
     }
 
+
+    /*
     if ((id+1) == min_index){
       next_id_str = "start_node";
       if (col%2 == 1){
         next_id_str = "end_node";
       }
     }
-    else if(id == (max_index-2)){
+    else 
+    */
+    if(id == (max_index-1)){
       next_id_str = "end_node";
       if (col%2 == 1){
         next_id_str = "start_node";
@@ -346,9 +352,9 @@ void MyViz::visualizeRowMap(int row){
     temporal_marker.text = id_str;
     online_marker_array_.markers.push_back(temporal_marker);
 
-    if (id == max_index-1){
+    if (id == max_index){
       //skip edges of last node of the row
-      continue;
+     continue;
     }
 
     temporal_edges.id = 100+id;
@@ -365,7 +371,7 @@ void MyViz::visualizeRowMap(int row){
     //Edges ids
 
     //birectional
-    //std::cout << id_str << next_id_str << std::endl;
+    std::cout << id_str << " TO " <<next_id_str << std::endl;
     //edges_.emplace_back(id_str, next_id_str);
     //edges_.emplace_back(next_id_str,id_str);
 
