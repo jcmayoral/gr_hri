@@ -5,7 +5,7 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
-   gr_action_server_("gr_simple_manager", true), nviapoints_{9}, mode_{0}, span_{1}
+   gr_action_client_("gr_simple_manager", true), nviapoints_{9}, mode_{0}, span_{1}, cancel_goal_{false}
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
@@ -60,10 +60,13 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( span_spinbox_, 3, 3 );
 
 
-  QPushButton* execute_map = new QPushButton ("Execute Map");
+  QPushButton* execute_map = new QPushButton ("Execute Nav");
+  QPushButton* stop_map = new QPushButton ("Stop Nav");
+
   checkbox_ = new QCheckBox("Resume last execution", this);
   controls_layout->addWidget( checkbox_, 4, 0 );
   controls_layout->addWidget( execute_map, 4, 1 );
+  controls_layout->addWidget( stop_map, 4, 2 );
 
 
   QLabel* time_to_go_label = new QLabel("Expected Time To Next Goal");
@@ -84,6 +87,8 @@ MyViz::MyViz( QWidget* parent )
 
   // Make signal/slot connections.
   connect( execute_map, SIGNAL( released( )), this, SLOT( executeTopoMap( )));
+  connect( stop_map, SIGNAL( released( )), this, SLOT( stopExecution( )));
+
   connect( column_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setDesiredRow(int)));
   connect( mode_selector_, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setMode(QListWidgetItem*)));
   connect( via_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setNViaPoints(int)));
@@ -106,6 +111,13 @@ void MyViz::setNViaPoints(int nvia){
 
 void MyViz::setSpan(int span){
   span_ = span;
+}
+
+void MyViz::stopExecution(){
+  std::cout << "calling stop" << std::endl;
+  cancel_goal_ = true;
+  //if gui is terminated .. better to cancel all goals
+  gr_action_client_.cancelAllGoals();
 }
 
 void MyViz::timetogoCB(const std_msgs::Float32ConstPtr time2go){
@@ -146,6 +158,7 @@ void MyViz::setDesiredRow(int row){
 }
 
 void MyViz::executeTopoMap(){
+  cancel_goal_ = false;
   //std::thread worker_thread();
   t1 = new std::thread(&MyViz::executeCycle, this, 0);
   t1->detach();
@@ -172,13 +185,13 @@ void MyViz::executeCycle(int cycle){
   gr_action_msgs::GRNavigationGoal goal;
   goal.mode = mode_;
   goal.span = span_;
+  goal.row_id = current_row_;
   goal.plan = online_marker_array_;
   //goal.start_node = std::string("start_node").c_str();
-  gr_action_server_.sendGoal(goal);
-  ROS_INFO("0");
-  bool finished_before_timeout = gr_action_server_.waitForResult();
+  gr_action_client_.sendGoal(goal);
+  bool finished_before_timeout = gr_action_client_.waitForResult();
   ROS_INFO("A");
-  actionlib::SimpleClientGoalState state = gr_action_server_.getState();
+  actionlib::SimpleClientGoalState state = gr_action_client_.getState();
   ROS_INFO("Action finished: %s",state.toString().c_str());
 
   ROS_INFO("B");
@@ -199,6 +212,7 @@ void MyViz::executeCycle(int cycle){
 
   if (cycle < id_maxnumberrows_){
     ROS_INFO("ROW FINISHED");
+    execution_status_.last_row = cycle;
     executeCycle(cycle + 1);
   }
 }

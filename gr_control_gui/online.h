@@ -16,6 +16,7 @@
 #include<gr_action_msgs/GRNavigationAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
+#include <navigation_msgs/TopoExecutionStatus.h>
 
 #include <QCheckBox>
 
@@ -40,6 +41,8 @@ namespace gr_control_gui{
       private Q_SLOTS:
       void setDesiredRow(int row);
       void executeTopoMap();
+      void stopExecution();
+
       void setFrame(QString frame);
 
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
@@ -57,7 +60,7 @@ namespace gr_control_gui{
       ros::Publisher online_map_publisher_;
       ros::Publisher reset_publisher_;
       ros::ServiceClient update_client_;
-      actionlib::SimpleActionClient<gr_action_msgs::GRNavigationAction> gr_action_server_;
+      actionlib::SimpleActionClient<gr_action_msgs::GRNavigationAction> gr_action_client_;
 
       QLabel* time_to_go;
       ros::Subscriber time_to_go_sub_;
@@ -70,6 +73,8 @@ namespace gr_control_gui{
       QCheckBox *checkbox_;
       QSpinBox* span_spinbox_;
       bool resume_;
+      navigation_msgs::TopoExecutionStatus execution_status_;
+      bool cancel_goal_;
   };
 };
   // END_TUTORIAL
