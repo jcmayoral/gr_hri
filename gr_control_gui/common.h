@@ -72,6 +72,7 @@ namespace gr_control_gui{
       QVBoxLayout* main_layout_;
       rviz::RenderPanel* render_panel_;
      	mongodb_store::MessageStoreProxy* message_store_;
+
       navigation_msgs::TopologicalMap load_map_;
       visualization_msgs::MarkerArray marker_array_;
       std::vector<Edges> edges_;

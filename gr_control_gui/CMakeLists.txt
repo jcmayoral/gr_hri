@@ -38,12 +38,13 @@ include_directories(${catkin_INCLUDE_DIRS})
 add_library(offline_gui offline.cpp)
 qt5_use_modules(offline_gui Widgets)
 qt5_use_modules(offline_gui Core)
-target_link_libraries(offline_gui ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES})
+target_link_libraries(offline_gui ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES} )
 
 add_library(online_gui online.cpp)
 qt5_use_modules(online_gui Widgets)
 qt5_use_modules(online_gui Core)
 target_link_libraries(online_gui ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES})
+add_compile_options(-std=c++11)
 
 add_library(common_gui common.cpp)
 qt5_use_modules(common_gui Widgets)
@@ -51,7 +52,7 @@ qt5_use_modules(common_gui Core)
 target_link_libraries(common_gui ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 
 add_executable(online main_online.cpp)
-target_link_libraries(online online_gui common_gui)
+target_link_libraries(online online_gui common_gui )
 
 add_executable(offline main_offline.cpp)
 target_link_libraries(offline offline_gui common_gui)

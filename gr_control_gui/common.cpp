@@ -10,6 +10,7 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
   //collection and database as arguments to messageStoreProxy
   message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
+
   main_layout_ = new QVBoxLayout();
   render_panel_ = new rviz::RenderPanel();
   controls_layout_ = new QGridLayout();
@@ -186,7 +187,7 @@ void MyCommonViz::visualizeMap(){
   std::vector<std::pair<float,float> > vector;
   std::cout << "visualize xcells " << nrows_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
 
-  map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-robot_radius_)/(default_npoints_-1));
+  map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_*1.0, (terrain_y_-0.1)/(default_npoints_-1));
 
   int id, index_1, index_2 = 0;
   int col;
@@ -205,12 +206,17 @@ void MyCommonViz::visualizeMap(){
 
     for( auto id = min_index; id< max_index; ++id){
       //Storing Nodes
-      col = id/y_cells_;
+      //col = id/y_cells_;
       temporal_marker.id = id;
       tx = vector[id].first;
       ty = vector[id].second;
       temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
       temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
+      if (direction_){
+        std::cout<< "direction "<< tx << " , " << ty <<  std::endl;
+        temporal_marker.pose.position.x += terrain_x_;
+        //temporal_marker.pose.position.y += terrain_y_;
+      }
       tf2::Quaternion quat_tf;
       quat_tf.setRPY(0.0, 0.0, yaw);
       geometry_msgs::Quaternion quat_msg;
@@ -236,10 +242,19 @@ void MyCommonViz::visualizeMap(){
       ty1 = vector[id+1].second;
       temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
       temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
+
+      if (direction_){
+        temporal_point.x += terrain_x_;
+        //temporal_point.y += terrain_y_;
+      }
       temporal_edges.points.push_back(temporal_point);
       temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
       temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
       //Marker
+      if (direction_){
+        temporal_point.x += terrain_x_;
+        //temporal_point.y += terrain_y_;
+      }
       temporal_edges.points.push_back(temporal_point);
       edges_.emplace_back(id_str, next_id_str);
       //edges_.emplace_back(next_id_str,id_str);
@@ -287,6 +302,11 @@ void MyCommonViz::publishRegion(){
   ty = -offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
+
+  if (direction_){
+    p.x += terrain_x_;
+    //p.y += terrain_y_;
+  }
   p.z = 0.0;
   region.points.push_back(p);
 
@@ -296,6 +316,10 @@ void MyCommonViz::publishRegion(){
 
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
+  if (direction_){
+    p.x += terrain_x_;
+    //p.y += terrain_y_;
+  }
   p.z = 0.0;
   region.points.push_back(p);
 
@@ -303,6 +327,10 @@ void MyCommonViz::publishRegion(){
   ty = terrain_y_ + offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
+  if (direction_){
+    p.x += terrain_x_;
+    //p.y += terrain_y_;
+  }
   p.z = 0.0;
   region.points.push_back(p);
 
@@ -311,6 +339,10 @@ void MyCommonViz::publishRegion(){
   ty = terrain_y_ + offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
+  if (direction_){
+    p.x += terrain_x_;
+    //p.y += terrain_y_;
+  }
   p.z = 0.0;
   region.points.push_back(p);
   
@@ -318,6 +350,10 @@ void MyCommonViz::publishRegion(){
   ty = -offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
+  if (direction_){
+    p.x += terrain_x_;
+    //p.y += terrain_y_;
+  }
   p.z = 0.0;
   region.points.push_back(p);
 
