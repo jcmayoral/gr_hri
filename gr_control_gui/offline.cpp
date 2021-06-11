@@ -40,7 +40,7 @@ MyViz::MyViz( QWidget* parent )
 
   QPushButton* save_topological_map = new QPushButton ("Store Map");
   QPushButton* delete_topological_map = new QPushButton ("Delete Map");
-  QPushButton* execute_map = new QPushButton ("Execute Map");
+  QPushButton* update_frame = new QPushButton ("Update Map Frame");
 
 
   QGridLayout* controls_layout = new QGridLayout();
@@ -82,6 +82,8 @@ MyViz::MyViz( QWidget* parent )
   map_frame_ = "map";
   controls_layout->addWidget( map_frame_label, 5, 0 );
   controls_layout->addWidget( map_frame_edit, 5, 1 );
+  controls_layout->addWidget( update_frame, 5, 2 );
+
 
   // Construct and lay out render panel.
   //render_panel_ = new rviz::RenderPanel();

@@ -61,6 +61,7 @@ namespace gr_control_gui{
       virtual ~MyViz();
 
       private Q_SLOTS:
+      //TODO Change to lambdas
       void setTerrainY( int value);
       void setTerrainX( int value);
       void setAngle( int value );
