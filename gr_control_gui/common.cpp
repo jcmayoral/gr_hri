@@ -86,36 +86,37 @@ void MyCommonViz::loadMap(){
   in.close();
 
   std::string map_id("wish_map_move_base");
-  if (!storing_id_.empty()){
-    std::cout << "HERE " << storing_id_ << std::endl;
-    std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
+  std::cout << "Loading topomap with map id:  " << storing_id_ << std::endl;
+  
+  
+  std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
 
-    if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
-      //message_store_->updateNamed(map_id, topo_map);
-      //std::cout << results_map.size() << std::endl;
-      BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
-        load_map_ = *map;
-      }
-      ROS_WARN_STREAM(load_map_.info);
-
-      angle_ = load_map_.info.angle_offset;
-      direction_ = load_map_.info.direction;
-      map_frame_ = load_map_.info.map_frame;
-      robot_radius_ = load_map_.info.robot_radius;
-      terrain_y_ = load_map_.info.sizey;
-      terrain_x_ = load_map_.info.sizex;
-      nrows_ = ceil(terrain_x_/(2*robot_radius_));
-      std::cout << "MAX XCELLS " <<  nrows_ << std::endl;
-      y_cells_ =  default_npoints_;//ceil(terrain_y_/1);
-      id_maxnumberrows_ = nrows_-1;
-
-      manager_->setFixedFrame(map_frame_.c_str());
-
-      ROS_ERROR("YEI");
-      visualizeMap();
-      updateAfterLoad();
-      return;
+  if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
+    //message_store_->updateNamed(map_id, topo_map);
+    //std::cout << results_map.size() << std::endl;
+    BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
+      load_map_ = *map;
     }
+    ROS_WARN_STREAM(load_map_.info);
+
+    angle_ = load_map_.info.angle_offset;
+    direction_ = load_map_.info.direction;
+    map_frame_ = load_map_.info.map_frame;
+    robot_radius_ = load_map_.info.robot_radius;
+    terrain_y_ = load_map_.info.sizey;
+    terrain_x_ = load_map_.info.sizex;
+    nrows_ = ceil(terrain_x_/(2*robot_radius_));
+    std::cout << "MAX XCELLS " <<  nrows_ << std::endl;
+    y_cells_ =  default_npoints_;//ceil(terrain_y_/1);
+    id_maxnumberrows_ = nrows_-1;
+
+    manager_->setFixedFrame(map_frame_.c_str());
+
+    ROS_ERROR("Map Loaded");
+    visualizeMap();
+    updateAfterLoad();
+    return;
+  }
 
 
     /*
@@ -134,7 +135,6 @@ void MyCommonViz::loadMap(){
         }
         */
     std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
-  }
 }
 
 void MyCommonViz::visualizeMap(){
