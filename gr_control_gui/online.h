@@ -20,6 +20,8 @@
 
 #include <QCheckBox>
 
+#include <std_srvs/Trigger.h>
+
 namespace rviz
 {
 class Display;

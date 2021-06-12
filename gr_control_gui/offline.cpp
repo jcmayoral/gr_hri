@@ -7,7 +7,7 @@ MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1),
       id_maxnumberrows_(1) {
   ROS_INFO("OFFLINE CONTRUCTOR");
-  // Construct and lay out labels and slider controls.
+  // Construct an<fd lay out labels and slider controls.
   QLabel* width_label = new QLabel("Y Terrain" );
   width_slider_ = new QSlider( Qt::Horizontal );
   width_slider_->setMinimum( 1.00 );
@@ -100,6 +100,8 @@ MyViz::MyViz( QWidget* parent )
 
   connect( save_topological_map, SIGNAL( released( )), this, SLOT( saveMap( )));
   connect( delete_topological_map, SIGNAL( released( )), this, SLOT( deleteTopoMap( )));
+  connect( update_frame, SIGNAL( released( )), this, SLOT( updateMapFrame( )));
+
 
   connect( map_frame_edit, SIGNAL(textChanged(QString)), this, SLOT(setFrame(QString)));
   connect( checkbox_, SIGNAL(stateChanged(int )), this, SLOT(setDirection( int )));
@@ -114,7 +116,16 @@ MyViz::MyViz( QWidget* parent )
   update_server_ = nh_.advertiseService("/topological/edges", &MyViz::setEdges, this);
   //server_ = new boost::make_shared<actionlib::SimpleActionServer<GREdgesAction>>(nh_, "/topological/edges", boost::bind(&MyViz::execute_cb, _1), false);
   //server_->start();
+  update_client_ = nh_.serviceClient<std_srvs::Trigger>("/update_map_frame");
 
+}
+
+
+void MyViz::updateMapFrame(){
+  std_srvs::Trigger req;
+  if(update_client_.call(req)){
+    ROS_INFO("Map Frame Updated");
+  }
 }
 
 bool MyViz::setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res){

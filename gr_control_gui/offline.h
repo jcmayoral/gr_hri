@@ -41,7 +41,7 @@
 #include <gr_action_msgs/GREdges2.h>
 
 #include <actionlib/server/simple_action_server.h>
-
+#include <std_srvs/Trigger.h>
 
 namespace rviz
 {
@@ -74,11 +74,14 @@ namespace gr_control_gui{
       bool setEdges(gr_action_msgs::GREdges2::Request& req,gr_action_msgs::GREdges2::Response& res);
       //void execute_cb(const GREdgesActionGoal& goal);
       void updateAfterLoad();
-    
+      void updateMapFrame();
+
     private:
       //boost::shared_ptr<actionlib::SimpleActionServer<GREdgesAction>> server_;
       int current_row_;
       ros::ServiceServer update_server_;
+      ros::ServiceClient update_client_;
+
 
       int id_maxnumberrows_;
       QTextEdit* angle_text_;
