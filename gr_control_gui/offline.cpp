@@ -148,8 +148,10 @@ MyViz::~MyViz()
 }
 
 void MyViz::setDirection(int state){
-  std::cout << "direction " << state << std::endl;
-  direction_ = state-1;
+  std::cout << "direction State" << state << std::endl;
+  direction_ =  (state==2)? 1 : -1;
+  std::cout << "direction set" << direction_ << std::endl;
+
   visualizeMap();
 }
 

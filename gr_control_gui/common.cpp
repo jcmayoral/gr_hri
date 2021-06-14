@@ -154,7 +154,7 @@ void MyCommonViz::visualizeMap(){
   //DELETE PREVIOUS
   temporal_marker.action = visualization_msgs::Marker::DELETEALL;
   marker_array_.markers.push_back(temporal_marker);
-  //map_publisher_.publish(marker_array_);
+  map_publisher_.publish(marker_array_);
 
   //Create New Nodes
   temporal_marker.action = visualization_msgs::Marker::ADD;
@@ -212,8 +212,8 @@ void MyCommonViz::visualizeMap(){
       ty = vector[id].second;
       temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
       temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
-      if (direction_){
-        std::cout<< "direction "<< tx << " , " << ty <<  std::endl;
+      if (direction_==1){
+        //std::cout<< "direction "<< tx << " , " << ty <<  std::endl;
         temporal_marker.pose.position.x += terrain_x_;
         //temporal_marker.pose.position.y += terrain_y_;
       }
@@ -243,7 +243,7 @@ void MyCommonViz::visualizeMap(){
       temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
       temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
 
-      if (direction_){
+      if (direction_==1){
         temporal_point.x += terrain_x_;
         //temporal_point.y += terrain_y_;
       }
@@ -251,7 +251,7 @@ void MyCommonViz::visualizeMap(){
       temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
       temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
       //Marker
-      if (direction_){
+      if (direction_==1){
         temporal_point.x += terrain_x_;
         //temporal_point.y += terrain_y_;
       }
@@ -303,7 +303,7 @@ void MyCommonViz::publishRegion(){
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
 
-  if (direction_){
+  if (direction_==1){
     p.x += terrain_x_;
     //p.y += terrain_y_;
   }
@@ -316,7 +316,7 @@ void MyCommonViz::publishRegion(){
 
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_){
+  if (direction_==1){
     p.x += terrain_x_;
     //p.y += terrain_y_;
   }
@@ -327,7 +327,7 @@ void MyCommonViz::publishRegion(){
   ty = terrain_y_ + offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_){
+  if (direction_==1){
     p.x += terrain_x_;
     //p.y += terrain_y_;
   }
@@ -339,7 +339,8 @@ void MyCommonViz::publishRegion(){
   ty = terrain_y_ + offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_){
+  if (direction_==1){
+    ROS_INFO("DIRECTIOn");
     p.x += terrain_x_;
     //p.y += terrain_y_;
   }
@@ -350,7 +351,7 @@ void MyCommonViz::publishRegion(){
   ty = -offset;
   p.x = tx * cos(angle_) - ty *sin(angle_);
   p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_){
+  if (direction_==1){
     p.x += terrain_x_;
     //p.y += terrain_y_;
   }
