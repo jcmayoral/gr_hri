@@ -32,7 +32,6 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   manager_->setFixedFrame(QString("base_link"));
   auto controller = manager_->getViewManager()->create(QString("rviz/ThirdPersonFollower"));
   //manager_->getViewManager()->setCurrentFrom(controller);
-  manager_->getViewManager()->setCurrentViewControllerType("rviz/ThirdPersonFollower");
   //manager_->initialize();
   
   //auto* viewmanager = manager_->getViewManager();
@@ -108,6 +107,7 @@ void MyCommonViz::loadGUI(){
   manager_->initialize();
   manager_->setFixedFrame(QString("base_link"));
   manager_->startUpdate();
+  manager_->getViewManager()->setCurrentViewControllerType("rviz/ThirdPersonFollower");
   main_layout_->addLayout( controls_layout_ );
   main_layout_->addWidget( render_panel_ );
   setLayout( main_layout_ );
