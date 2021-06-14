@@ -17,8 +17,10 @@
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 
+#include <rviz/view_manager.h>
 #include <rviz/visualization_manager.h>
 #include <rviz/render_panel.h>
+#include <rviz/view_controller.h>
 #include <rviz/display.h>
 #include <rviz/default_plugin/marker_array_display.h>
 
@@ -40,6 +42,8 @@ namespace rviz
 {
 class Display;
 class RenderPanel;
+class ViewManager;
+class ViewController;
 class VisualizationManager;
 }
 

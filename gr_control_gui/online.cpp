@@ -220,7 +220,7 @@ void MyViz::executeCycle(int cycle){
   */
 
   if (cycle < id_maxnumberrows_){
-    ROS_INFO("ROW FINISHED");
+    ROS_INFO_STREAM("ROW " << cycle << " of " << id_maxnumberrows_ << "FINISHED ");
     execution_status_.last_row = cycle;
     executeCycle(cycle + 1);
   }
@@ -401,8 +401,6 @@ void MyViz::visualizeRowMap(int row){
 
   online_map_publisher_.publish(online_marker_array_);
 }
-
-
 
 void MyViz::updateAfterLoad() {
   std::cout << "UPDate AfterLoad on line " << std::endl;

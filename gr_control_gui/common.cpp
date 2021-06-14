@@ -13,6 +13,15 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
 
   main_layout_ = new QVBoxLayout();
   render_panel_ = new rviz::RenderPanel();
+
+  //auto view_controller = render_panel_->getViewController();
+
+  //rviz::ViewController* view_controller;
+  //view_controller = new rviz::ViewController();
+  //view_controller->lookAt(0,0,0);
+  ////render_panel_->setViewController(view_controller);  
+
+
   controls_layout_ = new QGridLayout();
   QPushButton* load_topological_map = new QPushButton ("Load Map");
   controls_layout_->addWidget( load_topological_map, 0, 0 );
@@ -20,7 +29,33 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
 
 
   manager_ = new rviz::VisualizationManager( render_panel_ );
+  manager_->setFixedFrame(QString("base_link"));
+  auto controller = manager_->getViewManager()->create(QString("rviz/ThirdPersonFollower"));
+  //manager_->getViewManager()->setCurrentFrom(controller);
+  manager_->getViewManager()->setCurrentViewControllerType("rviz/ThirdPersonFollower");
+  //manager_->initialize();
+  
+  //auto* viewmanager = manager_->getViewManager();
   render_panel_->initialize( manager_->getSceneManager(), manager_ );
+
+  /*
+  
+  auto* viewcontroller = new rviz::ViewController();
+  viewmanager->setCurrent(viewcontroller,false)
+
+
+  //rviz::ViewController* view = viewmanager->getCurrent();
+
+
+  //manager_->getViewManager()->getCurrent()->subProp("Distance")->setValue("20");
+
+  //rviz::ViewController* view = new rviz::OrbitViewController();
+  //view->initialize(manager_);
+  //render_panel_->setViewController(view);
+
+  //QString class_id = "rviz/Orbit";
+  //manager_->getViewManager()->setCurrentViewControllerType(class_id);
+  */
 
   // Create Subscribers
   rviz::Display* marker_display;
@@ -65,12 +100,13 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   ROS_ASSERT( dect != NULL );
   dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");  
 
-  manager_->setFixedFrame("map");
+  //manager_->setFixedFrame("map");
 }
 
 void MyCommonViz::loadGUI(){
   ROS_ERROR("LoadGUI");
   manager_->initialize();
+  manager_->setFixedFrame(QString("base_link"));
   manager_->startUpdate();
   main_layout_->addLayout( controls_layout_ );
   main_layout_->addWidget( render_panel_ );
