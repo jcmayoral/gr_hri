@@ -8,19 +8,19 @@ MyViz::MyViz( QWidget* parent )
       id_maxnumberrows_(1) {
   ROS_INFO("OFFLINE CONTRUCTOR");
   // Construct an<fd lay out labels and slider controls.
-  QLabel* width_label = new QLabel("Y Terrain" );
+  QLabel* width_label = new QLabel("Terrain Length[m]" );
   width_slider_ = new QSlider( Qt::Horizontal );
   width_slider_->setMinimum( 1.00 );
   width_slider_->setMaximum( 100.0 );
 
-  QLabel* height_label = new QLabel( "X Terrain" );
+  QLabel* height_label = new QLabel( "Terrain Width[m]" );
   height_slider_ = new QSlider( Qt::Horizontal );
   angle_slider_ = new QSlider( Qt::Horizontal );
 
   height_slider_->setMinimum( 1.0 );
   height_slider_->setMaximum( 100.0 );
 
-  QLabel* angle_label = new QLabel( "Angle " );
+  QLabel* angle_label = new QLabel( "Offset Angle[rad]" );
   angle_slider_->setMinimum(-180);
   angle_slider_->setMaximum(180);
 
@@ -170,6 +170,8 @@ void MyViz::setRadius( int value){
   robot_radius_ = value*0.1;
   std::cout << "ROBOT Radius" << robot_radius_ << std::endl;
   nrows_ = ceil(terrain_x_/(2*robot_radius_));
+  std::cout << "TerrainX " << terrain_x_ << std::endl;
+  std::cout << "DEN "<<  terrain_x_/(2*robot_radius_) << std::endl;
   std::cout << "NRows " << nrows_ << std::endl;
   radius_text_->setText(std::to_string(robot_radius_).c_str());
   visualizeMap();

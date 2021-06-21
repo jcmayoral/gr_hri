@@ -69,7 +69,7 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( stop_map, 4, 2 );
 
 
-  QLabel* time_to_go_label = new QLabel("Expected Time To Next Goal");
+  QLabel* time_to_go_label = new QLabel("Current Row ");
   time_to_go = new QLabel("0");
   QFont f( "Arial", 30, QFont::Bold);
   time_to_go->setFont(f);
@@ -100,7 +100,7 @@ MyViz::MyViz( QWidget* parent )
   manager_->startUpdate();
   */
   update_client_ = local_nh.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
-  time_to_go_sub_ = local_nh.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
+  //time_to_go_sub_ = local_nh.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
 }
 
 void MyViz::feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback)
@@ -176,6 +176,9 @@ void MyViz::executeTopoMap(){
 void MyViz::executeCycle(int cycle){
   current_row_ = cycle;
   ROS_INFO_STREAM("current row "<< cycle);
+  std::string mystr = std::to_string(cycle) + " of " + std::to_string(id_maxnumberrows_);
+  time_to_go -> setText( QString(mystr.c_str()));
+
   //deleteTopoMap();
   //ros::Duration(1.0).sleep();
 
