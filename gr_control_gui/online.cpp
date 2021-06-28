@@ -4,13 +4,13 @@ using namespace gr_control_gui;
 // BEGIN_TUTORIAL
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
-  : MyCommonViz( parent ), current_row_(1),
-   gr_action_client_("gr_simple_manager", true), nviapoints_{9}, mode_{0}, span_{1}, cancel_goal_{false}
+  : MyCommonViz( parent ), current_row_(1), task_{"CUT"},
+   gr_action_client_("gr_simple_manager", true), nviapoints_{9}, mode_{1}, span_{1}, cancel_goal_{false}
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
   reset_publisher_ = local_nh.advertise<std_msgs::Time>("update_map", 1);
-  
+
 
   rviz::Display* marker_display;
   marker_display = manager_->createDisplay( "rviz/MarkerArray", "current_topological_map", true );
@@ -45,6 +45,7 @@ MyViz::MyViz( QWidget* parent )
   mode_selector_ = new QListWidget;
   mode_selector_->addItems(QStringList({"Visit All","Just End","Visit Some"}));
   mode_selector_->setMaximumHeight(100);
+  mode_selector_->setCurrentRow(1);
   //mode_selector,addItem(QString("VISIT ALL"));
   //mode_selector,addItem(QString("VISIT ALL"));
   //mode_selector,addItem(QString("VISIT ALL"));
@@ -52,13 +53,20 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( mode_label, 3, 0 );
   controls_layout->addWidget( mode_selector_, 3, 1 );
 
-  span_spinbox_ = new QSpinBox;
-  span_spinbox_->setRange(0, nviapoints_);
-  span_spinbox_->setSingleStep(1);
-  span_spinbox_->setValue(span_);
-  controls_layout->addWidget( new QLabel("Skip N ViaPoints"), 3, 2 );
-  controls_layout->addWidget( span_spinbox_, 3, 3 );
 
+  QLabel* task_label = new QLabel("Task Selector");
+  //QListView* mode_selector = new QListView;
+  //mode_selector.addItem(QString("mode 0"));
+  task_selector_ = new QListWidget;
+  task_selector_->addItems(QStringList({"Cut","Collect"}));
+  task_selector_->setMaximumHeight(100);
+  task_selector_->setCurrentRow(0);
+  //mode_selector,addItem(QString("VISIT ALL"));
+  //mode_selector,addItem(QString("VISIT ALL"));
+  //mode_selector,addItem(QString("VISIT ALL"));
+
+  controls_layout->addWidget( task_label, 3, 2 );
+  controls_layout->addWidget( task_selector_, 3, 3 );
 
   QPushButton* execute_map = new QPushButton ("Execute Nav");
   QPushButton* stop_map = new QPushButton ("Stop Nav");
@@ -79,6 +87,14 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( time_to_go_label, 5, 0 );
   controls_layout->addWidget( time_to_go, 5, 1 );
 
+
+  span_spinbox_ = new QSpinBox;
+  span_spinbox_->setRange(0, nviapoints_);
+  span_spinbox_->setSingleStep(1);
+  span_spinbox_->setValue(span_);
+  controls_layout->addWidget( new QLabel("Skip N ViaPoints"), 5, 2 );
+  controls_layout->addWidget( span_spinbox_, 5, 3 );
+
   // Construct and lay out render panel.
   main_layout_->addLayout( controls_layout );
 
@@ -91,6 +107,8 @@ MyViz::MyViz( QWidget* parent )
 
   connect( column_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setDesiredRow(int)));
   connect( mode_selector_, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setMode(QListWidgetItem*)));
+  connect( task_selector_, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setTask(QListWidgetItem*)));
+
   connect( via_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setNViaPoints(int)));
   connect( span_spinbox_, SIGNAL(valueChanged(int)), this, SLOT(setSpan(int)));
 
@@ -141,6 +159,12 @@ MyViz::~MyViz()
   update_client_.shutdown();
 
 }
+
+void MyViz::setTask(QListWidgetItem* item ){
+  task_ = item->text().toStdString();
+  std::cout << "CHANGE Task TO "<< task_ << std::endl;
+}
+
 
 void MyViz::setMode(QListWidgetItem* item ){
   mode_ = mode_selector_->row(item);
@@ -196,6 +220,7 @@ void MyViz::executeCycle(int cycle){
   ros::Duration(1.0).sleep();
   gr_action_msgs::GRNavigationGoal goal;
   goal.mode = mode_;
+  goal.task_id = task_;
   goal.span = span_;
   goal.row_id = current_row_;
   goal.plan = online_marker_array_;
@@ -222,7 +247,7 @@ void MyViz::executeCycle(int cycle){
   if(update_client_.call(req)){
     ROS_INFO("Client Succeded");
   }
-  */  
+  */
   /*boost::shared_ptr<std_msgs::Empty const> msg_pointer;
   msg_pointer =  ros::topic::waitForMessage<std_msgs::Empty>("/end_motion");
   */
@@ -291,7 +316,7 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
   int id, index_1, index_2 = 0;
   int col;
 
-  //TODO VISUALIZE ALL and current row 
+  //TODO VISUALIZE ALL and current row
   int min_index = row*nviapoints_;
   int max_index = min_index + nviapoints_ -1;
 
@@ -365,7 +390,7 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
         next_id_str = "end_node";
       }
     }
-    else 
+    else
     */
     /*
     if(id == (max_index-1)){
@@ -391,7 +416,7 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
     }
 
     temporal_edges.id = 100+id;
-    temporal_edges.text = id_str + "::" + next_id_str; 
+    temporal_edges.text = id_str + "::" + next_id_str;
     tx1 = vector[id+1].first;
     ty1 = vector[id+1].second;
     temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
@@ -411,8 +436,8 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
     online_marker_array_.markers.push_back(temporal_edges);
   }
 
-  start_node = min_index;
-  goal_node = max_index;
+  goal_node = (row%2) ? min_index : max_index;
+  start_node = (row%2) ? max_index : min_index;;
 
   online_map_publisher_.publish(online_marker_array_);
 }

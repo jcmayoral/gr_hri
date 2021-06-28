@@ -27,10 +27,10 @@ namespace gr_control_gui{
   typedef std::pair<std::string, std::string> Edges;
   typedef actionlib::SimpleActionClient<gr_action_msgs::GRNavigationAction> MyClient;
 
-
   class MyViz: public MyCommonViz{
     Q_OBJECT
     public:
+      //std::string TASKS[2] = {"CUT", "COLLECT"};
       MyViz( QWidget* parent = 0 );
       virtual ~MyViz();
 
@@ -45,6 +45,8 @@ namespace gr_control_gui{
       void executeCycle(int cycle);
       void visualizeRowMap(int row, int& start_node, int& goal_node);
       void setMode(QListWidgetItem* item);
+      void setTask(QListWidgetItem* item);
+
       void setNViaPoints(int nvia);
       void setSpan(int span);
       void updateAfterLoad();
@@ -67,7 +69,10 @@ namespace gr_control_gui{
       int nviapoints_;
       int span_;
       int mode_;
+      std::string task_;
       QListWidget* mode_selector_;
+      QListWidget* task_selector_;
+
       QCheckBox *checkbox_;
       QSpinBox* span_spinbox_;
       bool resume_;
