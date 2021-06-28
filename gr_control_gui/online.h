@@ -43,7 +43,7 @@ namespace gr_control_gui{
 
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
       void executeCycle(int cycle);
-      void visualizeRowMap(int row);
+      void visualizeRowMap(int row, int& start_node, int& goal_node);
       void setMode(QListWidgetItem* item);
       void setNViaPoints(int nvia);
       void setSpan(int span);

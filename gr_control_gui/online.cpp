@@ -155,8 +155,9 @@ void MyViz::setDesiredRow(int row){
   id_maxnumberrows_ = nrows_-1;
 
   if (row < id_maxnumberrows_){
+    int min, max;
     current_row_ = std::min(id_maxnumberrows_, row);
-    visualizeRowMap(current_row_);
+    visualizeRowMap(current_row_, min , max);
   }
   else{
     ROS_ERROR("ERROR");
@@ -184,7 +185,9 @@ void MyViz::executeCycle(int cycle){
 
   //BUG
   //visualizeMap();
-  visualizeRowMap(current_row_);
+  int start_node = 0;
+  int end_node = 1;
+  visualizeRowMap(current_row_, start_node, end_node);
 
 
   /*this is teh fancy topological map
@@ -196,6 +199,8 @@ void MyViz::executeCycle(int cycle){
   goal.span = span_;
   goal.row_id = current_row_;
   goal.plan = online_marker_array_;
+  goal.start_node = "node_" + std::to_string(start_node);
+  goal.goal_node = "node_" + std::to_string(end_node);
   //goal.start_node = std::string("start_node").c_str();
   gr_action_client_.sendGoal(goal, MyClient::SimpleDoneCallback(),
               MyClient::SimpleActiveCallback(),
@@ -230,7 +235,7 @@ void MyViz::executeCycle(int cycle){
 }
 
 
-void MyViz::visualizeRowMap(int row){
+void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
   //Node Creation
   node_map_.clear();
   visualization_msgs::Marker temporal_marker;
@@ -334,6 +339,7 @@ void MyViz::visualizeRowMap(int row){
 
     std::cout << "COL "<< col <<std::endl;
     //Nasty Hack
+    /*
     if (id == min_index){
       id_str = "start_node";
       if (col%2 == 1){
@@ -347,8 +353,9 @@ void MyViz::visualizeRowMap(int row){
       }
     }
     else{
-      id_str ="node_" + std::to_string(id);
-    }
+      */
+    id_str ="node_" + std::to_string(id);
+    //}
 
 
     /*
@@ -360,6 +367,7 @@ void MyViz::visualizeRowMap(int row){
     }
     else 
     */
+    /*
     if(id == (max_index-1)){
       next_id_str = "end_node";
       if (col%2 == 1){
@@ -367,8 +375,9 @@ void MyViz::visualizeRowMap(int row){
       }
     }
     else{
+      */
       next_id_str ="node_" + std::to_string(id+1);
-    }
+    //}
     //end of nasty hack
     node_map_[id_str] = temporal_marker.pose;
     //ROS_ERROR_STREAM("FINAL NODE NAME " << id_str);
@@ -401,6 +410,9 @@ void MyViz::visualizeRowMap(int row){
 
     online_marker_array_.markers.push_back(temporal_edges);
   }
+
+  start_node = min_index;
+  goal_node = max_index;
 
   online_map_publisher_.publish(online_marker_array_);
 }
