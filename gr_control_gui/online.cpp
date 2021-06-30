@@ -58,7 +58,7 @@ MyViz::MyViz( QWidget* parent )
   //QListView* mode_selector = new QListView;
   //mode_selector.addItem(QString("mode 0"));
   task_selector_ = new QListWidget;
-  task_selector_->addItems(QStringList({"Cut","Collect"}));
+  task_selector_->addItems(QStringList({"CUT","COLLECT"}));
   task_selector_->setMaximumHeight(100);
   task_selector_->setCurrentRow(0);
   //mode_selector,addItem(QString("VISIT ALL"));

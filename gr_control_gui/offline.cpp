@@ -11,14 +11,14 @@ MyViz::MyViz( QWidget* parent )
   QLabel* width_label = new QLabel("Terrain Length[m]" );
   width_slider_ = new QSlider( Qt::Horizontal );
   width_slider_->setMinimum( 1.00 );
-  width_slider_->setMaximum( 100.0 );
+  width_slider_->setMaximum( 1000.0 );
 
   QLabel* height_label = new QLabel( "Terrain Width[m]" );
   height_slider_ = new QSlider( Qt::Horizontal );
   angle_slider_ = new QSlider( Qt::Horizontal );
 
   height_slider_->setMinimum( 1.0 );
-  height_slider_->setMaximum( 100.0 );
+  height_slider_->setMaximum( 1000.0 );
 
   QLabel* angle_label = new QLabel( "Offset Angle[rad]" );
   angle_slider_->setMinimum(-180);
