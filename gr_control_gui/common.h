@@ -86,6 +86,7 @@ namespace gr_control_gui{
       ros::Publisher region_publisher_;
       ros::NodeHandle nh_;
       rviz::VisualizationManager* manager_;
+      ros::ServiceClient map_client_;
 
       //TODO Update TopoInfo
       double robot_radius_;

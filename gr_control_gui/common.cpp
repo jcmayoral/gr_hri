@@ -103,6 +103,8 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   ROS_ASSERT( dect != NULL );
   dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");  
 
+
+
 //manager_->setFixedFrame("map");
 }
 
@@ -155,6 +157,10 @@ void MyCommonViz::loadMap(){
 	ROS_ERROR("Map Loaded");
 	visualizeMap();
 	updateAfterLoad();
+	gr_map_utils::UpdateMap req;
+	if(map_client_.call(req)){
+		ROS_INFO("Client Succeded");
+	}
 	return;
 	}
 

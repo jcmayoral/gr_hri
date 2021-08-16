@@ -116,7 +116,7 @@ MyViz::MyViz( QWidget* parent )
   update_server_ = nh_.advertiseService("/topological/edges", &MyViz::setEdges, this);
   //server_ = new boost::make_shared<actionlib::SimpleActionServer<GREdgesAction>>(nh_, "/topological/edges", boost::bind(&MyViz::execute_cb, _1), false);
   //server_->start();
-  update_client_ = nh_.serviceClient<std_srvs::Trigger>("/update_map_frame");
+  map_client_ = nh_.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
 
 }
 

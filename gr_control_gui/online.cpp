@@ -117,7 +117,7 @@ MyViz::MyViz( QWidget* parent )
   manager_->initialize();
   manager_->startUpdate();
   */
-  update_client_ = local_nh.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
+  //update_client_ = local_nh.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
   //time_to_go_sub_ = local_nh.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
 }
 
@@ -156,7 +156,7 @@ MyViz::~MyViz()
   online_map_publisher_.shutdown();
   //region_publisher_.shutdown();
   reset_publisher_.shutdown();
-  update_client_.shutdown();
+  //update_client_.shutdown();
 
 }
 

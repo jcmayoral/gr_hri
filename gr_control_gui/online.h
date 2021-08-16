@@ -59,7 +59,7 @@ namespace gr_control_gui{
 
       ros::Publisher online_map_publisher_;
       ros::Publisher reset_publisher_;
-      ros::ServiceClient update_client_;
+      //ros::ServiceClient update_client_;
       MyClient gr_action_client_;
 
       QLabel* time_to_go;
