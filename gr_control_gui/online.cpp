@@ -119,6 +119,7 @@ MyViz::MyViz( QWidget* parent )
   */
   //update_client_ = local_nh.serviceClient<gr_map_utils::UpdateMap>("update_metric_map");
   //time_to_go_sub_ = local_nh.subscribe("/gr_sbpl_trajectory_generator_node/time_to_go", 1, &MyViz::timetogoCB, this);
+  remote_exec_server_ = local_nh.advertiseService("execute_remotely", &MyViz::executeRun, this);
 }
 
 void MyViz::feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback)
@@ -257,6 +258,14 @@ void MyViz::executeCycle(int cycle){
     execution_status_.last_row = cycle;
     executeCycle(cycle + 1);
   }
+}
+
+bool MyViz::executeRun(std_srvs::Trigger::Request  &req, std_srvs::Trigger::Response &res ){
+  ROS_ERROR_STREAM("execute remotely");
+  loadMap();
+  ROS_ERROR("after loadMap");
+  executeTopoMap();
+  return true;
 }
 
 

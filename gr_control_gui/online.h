@@ -53,6 +53,8 @@ namespace gr_control_gui{
 
       void feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback);
 
+      bool executeRun(std_srvs::Trigger::Request  &req, std_srvs::Trigger::Response &res );
+
     private:
       int current_row_;
       visualization_msgs::MarkerArray online_marker_array_;
@@ -78,6 +80,9 @@ namespace gr_control_gui{
       bool resume_;
       navigation_msgs::TopoExecutionStatus execution_status_;
       bool cancel_goal_;
+
+      //Execute remotely
+      ros::ServiceServer remote_exec_server_;
   };
 };
   // END_TUTORIAL

@@ -64,9 +64,10 @@ namespace gr_control_gui{
         
       };
 
+      void loadMap();
+
       private Q_SLOTS:
 
-      void loadMap();
       
     protected:
       NodeMap node_map_;
