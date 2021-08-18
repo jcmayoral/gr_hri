@@ -263,7 +263,7 @@ void MyViz::executeCycle(int cycle){
 bool MyViz::executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::Response &res ){
   ROS_ERROR_STREAM("execute remotely");
 
-  if (req->data){
+  if (req.data){
       ROS_ERROR("Start Execution");
       loadMap();
       executeTopoMap();
