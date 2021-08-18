@@ -260,11 +260,18 @@ void MyViz::executeCycle(int cycle){
   }
 }
 
-bool MyViz::executeRun(std_srvs::Trigger::Request  &req, std_srvs::Trigger::Response &res ){
+bool MyViz::executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::Response &res ){
   ROS_ERROR_STREAM("execute remotely");
-  loadMap();
-  ROS_ERROR("after loadMap");
-  executeTopoMap();
+
+  if (req->data){
+      ROS_ERROR("Start Execution");
+      loadMap();
+      executeTopoMap();
+  }
+  else{
+    ROS_ERROR("Stop Execution");
+    stopExecution();
+  }
   return true;
 }
 

@@ -20,7 +20,7 @@
 
 #include <QCheckBox>
 
-#include <std_srvs/Trigger.h>
+#include <std_srvs/SetBool.h>
 
 namespace gr_control_gui{
   typedef std::map<std::string, geometry_msgs::Pose> NodeMap;
@@ -53,7 +53,7 @@ namespace gr_control_gui{
 
       void feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback);
 
-      bool executeRun(std_srvs::Trigger::Request  &req, std_srvs::Trigger::Response &res );
+      bool executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::Response &res );
 
     private:
       int current_row_;
