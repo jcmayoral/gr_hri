@@ -192,14 +192,21 @@ void MyViz::setDesiredRow(int row){
 void MyViz::executeTopoMap(){
   cancel_goal_ = false;
   //std::thread worker_thread();
-  t1 = new std::thread(&MyViz::executeCycle, this, 0);
+  t1 = new std::thread(&MyViz::startExecution, this);
   t1->detach();
   ROS_INFO("MOTION EXECUTION FINISHED");
 }
 
+void MyViz::startExecution(){
+  if (executeCycle(0)){
+    ROS_INFO("Motion worked");
+  }
+  else{
+    ROS_ERROR("Something failed worked");
+  }
+}
 
-
-void MyViz::executeCycle(int cycle){
+bool MyViz::executeCycle(int cycle){
   current_row_ = cycle;
   ROS_INFO_STREAM("current row "<< cycle);
   std::string mystr = std::to_string(cycle) + " of " + std::to_string(id_maxnumberrows_);
@@ -238,9 +245,9 @@ void MyViz::executeCycle(int cycle){
   ROS_INFO("Action finished: %s",state.toString().c_str());
   if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED ||
       state == actionlib::SimpleClientGoalState::StateEnum::REJECTED){
-    ROS_ERROR("Finished with error ");
-    return;
+    ROS_ERROR("Aborted or rejected");
     cycle = id_maxnumberrows_ + 1;
+    return false;
   }
   //Update map if topological + metric map is used
   /*
@@ -256,7 +263,12 @@ void MyViz::executeCycle(int cycle){
   if (cycle < id_maxnumberrows_){
     ROS_INFO_STREAM("ROW " << cycle << " of " << id_maxnumberrows_ << "FINISHED ");
     execution_status_.last_row = cycle;
-    executeCycle(cycle + 1);
+    if (executeCycle(cycle + 1)){
+      return true;
+    }
+    else{
+      return false;
+    }
   }
 }
 

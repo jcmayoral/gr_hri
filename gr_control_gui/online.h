@@ -42,7 +42,8 @@ namespace gr_control_gui{
       void setFrame(QString frame);
 
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
-      void executeCycle(int cycle);
+      bool executeCycle(int cycle);
+      void startExecution();
       void visualizeRowMap(int row, int& start_node, int& goal_node);
       void setMode(QListWidgetItem* item);
       void setTask(QListWidgetItem* item);
