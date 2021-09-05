@@ -54,7 +54,6 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( mode_label, 3, 0 );
   controls_layout->addWidget( mode_selector_, 3, 1 );
 
-
   QLabel* task_label = new QLabel("Task Selector");
   //QListView* mode_selector = new QListView;
   //mode_selector.addItem(QString("mode 0"));
@@ -76,7 +75,6 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( checkbox_, 4, 0 );
   controls_layout->addWidget( execute_map, 4, 1 );
   controls_layout->addWidget( stop_map, 4, 2 );
-
 
   QLabel* row_exec_label = new QLabel("Current Row ");
   row_exec = new QLabel("0");

@@ -66,7 +66,7 @@ namespace gr_control_gui{
       MyClient gr_action_client_;
 
       QLabel* row_exec;
-      ros::Subscriber time_to_go_sub_;
+      //ros::Subscriber time_to_go_sub_;
 
       std::thread* t1;
       int nviapoints_;
