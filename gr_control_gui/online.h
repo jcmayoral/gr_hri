@@ -65,7 +65,7 @@ namespace gr_control_gui{
       //ros::ServiceClient update_client_;
       MyClient gr_action_client_;
 
-      QLabel* time_to_go;
+      QLabel* row_exec;
       ros::Subscriber time_to_go_sub_;
 
       std::thread* t1;

@@ -210,6 +210,9 @@ void MyViz::startExecution(){
   if (resume_execution_){
     startpoint = last_know_completed_row_id_ + 1;
   }
+  else{
+    last_know_completed_row_id_ = 0;
+  }
 
   if (executeCycle(startpoint)){
     ROS_INFO("Motion worked");
