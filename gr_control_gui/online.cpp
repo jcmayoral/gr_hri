@@ -159,7 +159,7 @@ void MyViz::timetogoCB(const std_msgs::Float32ConstPtr time2go){
 MyViz::~MyViz()
 {
   //deleteTopoMap();
-  time_to_go_sub_.shutdown();
+  //time_to_go_sub_.shutdown();
   online_map_publisher_.shutdown();
   //region_publisher_.shutdown();
   reset_publisher_.shutdown();

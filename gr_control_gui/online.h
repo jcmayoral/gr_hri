@@ -47,13 +47,13 @@ namespace gr_control_gui{
       void visualizeRowMap(int row, int& start_node, int& goal_node);
       void setMode(QListWidgetItem* item);
       void setTask(QListWidgetItem* item);
+      void setResume(int span);
 
       void setNViaPoints(int nvia);
       void setSpan(int span);
       void updateAfterLoad();
 
       void feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback);
-
       bool executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::Response &res );
 
     private:
