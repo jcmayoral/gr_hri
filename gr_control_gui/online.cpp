@@ -5,7 +5,8 @@ using namespace gr_control_gui;
 // Constructor for MyViz.  This does most of the work of the class.
 MyViz::MyViz( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1), task_{"CUT"},
-   gr_action_client_("gr_simple_manager", true), nviapoints_{9}, mode_{1}, span_{1}, cancel_goal_{false}
+   gr_action_client_("gr_simple_manager", true), nviapoints_{9}, mode_{1}, span_{1}, cancel_goal_{false},
+   last_know_completed_row_id_{0}
 {
   ros::NodeHandle local_nh;
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
@@ -77,15 +78,15 @@ MyViz::MyViz( QWidget* parent )
   controls_layout->addWidget( stop_map, 4, 2 );
 
 
-  QLabel* time_to_go_label = new QLabel("Current Row ");
-  time_to_go = new QLabel("0");
+  QLabel* row_exec_label = new QLabel("Current Row ");
+  row_exec = new QLabel("0");
   QFont f( "Arial", 30, QFont::Bold);
-  time_to_go->setFont(f);
-  time_to_go->setFixedHeight(50);
+  row_exec->setFont(f);
+  row_exec->setFixedHeight(50);
   //time_to_go->setFixedWidth(50);
 
-  controls_layout->addWidget( time_to_go_label, 5, 0 );
-  controls_layout->addWidget( time_to_go, 5, 1 );
+  controls_layout->addWidget( row_exec_label, 5, 0 );
+  controls_layout->addWidget( row_exec, 5, 1 );
 
 
   span_spinbox_ = new QSpinBox;
@@ -111,6 +112,8 @@ MyViz::MyViz( QWidget* parent )
 
   connect( via_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setNViaPoints(int)));
   connect( span_spinbox_, SIGNAL(valueChanged(int)), this, SLOT(setSpan(int)));
+
+  connect( checkbox_, SIGNAL(stateChanged(int)), this, SLOT(setResume(int)));
 
   /*
   manager_->setFixedFrame("workspace");
@@ -138,6 +141,11 @@ void MyViz::setSpan(int span){
   span_ = span;
 }
 
+void MyViz::setResume(int span){
+  resume_execution_ = span;
+  ROS_INFO_STREAM("Resume "<< resume_execution_);
+}
+
 void MyViz::stopExecution(){
   std::cout << "calling stop" << std::endl;
   cancel_goal_ = true;
@@ -146,7 +154,7 @@ void MyViz::stopExecution(){
 }
 
 void MyViz::timetogoCB(const std_msgs::Float32ConstPtr time2go){
-  time_to_go -> setText(QString::number(time2go->data));
+  row_exec -> setText(QString::number(time2go->data));
 }
 
 // Destructor.
@@ -198,7 +206,12 @@ void MyViz::executeTopoMap(){
 }
 
 void MyViz::startExecution(){
-  if (executeCycle(0)){
+  int startpoint = 0;
+  if (resume_execution_){
+    startpoint = last_know_completed_row_id_ + 1;
+  }
+
+  if (executeCycle(startpoint)){
     ROS_INFO("Motion worked");
   }
   else{
@@ -210,7 +223,7 @@ bool MyViz::executeCycle(int cycle){
   current_row_ = cycle;
   ROS_INFO_STREAM("current row "<< cycle);
   std::string mystr = std::to_string(cycle) + " of " + std::to_string(id_maxnumberrows_);
-  time_to_go -> setText( QString(mystr.c_str()));
+  row_exec -> setText( QString(mystr.c_str()));
 
   //deleteTopoMap();
   //ros::Duration(1.0).sleep();
@@ -263,6 +276,7 @@ bool MyViz::executeCycle(int cycle){
   if (cycle < id_maxnumberrows_){
     ROS_INFO_STREAM("ROW " << cycle << " of " << id_maxnumberrows_ << "FINISHED ");
     execution_status_.last_row = cycle;
+    last_know_completed_row_id_ = cycle;
     if (executeCycle(cycle + 1)){
       return true;
     }

@@ -82,6 +82,10 @@ namespace gr_control_gui{
       navigation_msgs::TopoExecutionStatus execution_status_;
       bool cancel_goal_;
 
+      //Resume execution
+      int last_know_completed_row_id_;
+      bool resume_execution_;
+
       //Execute remotely
       ros::ServiceServer remote_exec_server_;
   };
