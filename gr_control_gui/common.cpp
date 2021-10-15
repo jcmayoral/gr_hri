@@ -332,14 +332,13 @@ void MyCommonViz::visualizeMap(){
 void MyCommonViz::publishRegion(){
 	visualization_msgs::Marker region;
 	region.header.frame_id = map_frame_;
-	region.ns = "region";000
+	region.ns = "region";
 	region.id = 20001;
 	region.type = visualization_msgs::Marker::LINE_STRIP;
 	region.action = visualization_msgs::Marker::DELETE;
 
 	region_publisher_.publish(region);
 	region.action = visualization_msgs::Marker::ADD;
-
 	region.scale.x = 0.1;
 	region.scale.y = 0.1;
 	region.scale.z = 0.1;
