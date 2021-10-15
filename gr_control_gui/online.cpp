@@ -399,6 +399,8 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
     tx = vector[id].first;
     ty = vector[id].second;
     temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
+    if (direction_ ==1 )
+      temporal_marker.pose.position.x = -temporal_marker.pose.position.x;
     temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0.0, 0.0, yaw);
