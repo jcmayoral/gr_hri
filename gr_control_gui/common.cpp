@@ -245,68 +245,77 @@ void MyCommonViz::visualizeMap(){
 
 	//TODO VISUALIZE ALL and current row 
 	for (int current_row = 0; current_row < nrows_; current_row++){
-	int min_index = current_row*y_cells_;
-	int max_index = (current_row*y_cells_) + y_cells_;
-	double yaw =(current_row%2) ? -1.57 : 1.57;
-	yaw+=angle_;
+		int min_index = current_row*y_cells_;
+		int max_index = (current_row*y_cells_) + y_cells_;
+		double yaw =(current_row%2) ? -1.57 : 1.57;
+		yaw+=angle_;
 
-	for( auto id = min_index; id< max_index; ++id){
-		//Storing Nodes
-		//col = id/y_cells_;
-		temporal_marker.id = id;
-		tx = vector[id].first;
-		ty = vector[id].second;
-		temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
-		temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
-		if (direction_==1){
-	//std::cout<< "direction "<< tx << " , " << ty <<  std::endl;
-	temporal_marker.pose.position.x += terrain_x_;
-	//temporal_marker.pose.position.y += terrain_y_;
+		for( auto id = min_index; id< max_index; ++id){
+			//Storing Nodes
+			//col = id/y_cells_;
+			temporal_marker.id = id;
+			tx = vector[id].first;
+			ty = vector[id].second;
+			if (direction_==1){
+				tx = -tx;
+			}
+			temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
+			temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
+
+			std::cout << " direction " << temporal_point.x << std::endl;
+
+			
+			tf2::Quaternion quat_tf;
+			quat_tf.setRPY(0.0, 0.0, yaw);
+			geometry_msgs::Quaternion quat_msg;
+			tf2::convert(quat_tf, temporal_marker.pose.orientation);
+
+			marker_array_.markers.push_back(temporal_marker);
+
+			std::string id_str("error");
+			std::string next_id_str("error");
+
+			id_str ="node_" + std::to_string(id);
+			next_id_str ="node_" + std::to_string(id+1);
+
+			node_map_[id_str] = temporal_marker.pose;
+
+			if (id == max_index-1){
+				continue;
+			}
+
+			temporal_edges.id = 100+id;
+
+			tx1 = vector[id+1].first;
+			ty1 = vector[id+1].second;
+
+			if (direction_==1){
+				tx1 = -tx1;
+			}
+			temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
+			temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
+
+			if (direction_==1){
+				temporal_point.x = - temporal_point.x;
+			}
+
+			temporal_edges.points.push_back(temporal_point);
+
+			temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
+			temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
+
+			//Marker
+			if (direction_==1){
+				temporal_point.x = - temporal_point.x;
+			}
+
+			temporal_edges.points.push_back(temporal_point);
+
+			edges_.emplace_back(id_str, next_id_str);
+			edges_.emplace_back(next_id_str,id_str);
+
+			marker_array_.markers.push_back(temporal_edges);
 		}
-		tf2::Quaternion quat_tf;
-		quat_tf.setRPY(0.0, 0.0, yaw);
-		geometry_msgs::Quaternion quat_msg;
-		tf2::convert(quat_tf, temporal_marker.pose.orientation);
-
-		marker_array_.markers.push_back(temporal_marker);
-
-		std::string id_str("error");
-		std::string next_id_str("error");
-
-		id_str ="node_" + std::to_string(id);
-		next_id_str ="node_" + std::to_string(id+1);
-
-		node_map_[id_str] = temporal_marker.pose;
-
-		if (id == max_index-1){
-	continue;
-		}
-
-		temporal_edges.id = 100+id;
-
-		tx1 = vector[id+1].first;
-		ty1 = vector[id+1].second;
-		temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
-		temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
-
-		if (direction_==1){
-	temporal_point.x += terrain_x_;
-	//temporal_point.y += terrain_y_;
-		}
-		temporal_edges.points.push_back(temporal_point);
-		temporal_point.x = tx1 * cos(angle_) - ty1* sin(angle_);
-		temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
-		//Marker
-		if (direction_==1){
-	temporal_point.x += terrain_x_;
-	//temporal_point.y += terrain_y_;
-		}
-		temporal_edges.points.push_back(temporal_point);
-		edges_.emplace_back(id_str, next_id_str);
-		//edges_.emplace_back(next_id_str,id_str);
-
-		marker_array_.markers.push_back(temporal_edges);
-	}
 	}
 
 	/*
@@ -323,7 +332,7 @@ void MyCommonViz::visualizeMap(){
 void MyCommonViz::publishRegion(){
 	visualization_msgs::Marker region;
 	region.header.frame_id = map_frame_;
-	region.ns = "region";
+	region.ns = "region";000
 	region.id = 20001;
 	region.type = visualization_msgs::Marker::LINE_STRIP;
 	region.action = visualization_msgs::Marker::DELETE;
@@ -341,6 +350,7 @@ void MyCommonViz::publishRegion(){
 	float tx = 0.0;
 	float ty = 0.0;
 
+	//primver punto de la region
 	geometry_msgs::Point p;
 	float offset = 2.0;
 
@@ -348,64 +358,41 @@ void MyCommonViz::publishRegion(){
 	ty = -offset;
 	p.x = tx * cos(angle_) - ty *sin(angle_);
 	p.y = tx * sin(angle_) + ty *cos(angle_);
-
-	if (direction_==1){
-	p.x += terrain_x_;
-	//p.y += terrain_y_;
-	}
+	p.z = 0.0;
+	region.points.push_back(p);
+	
+	//Segundo punto
+	tx = (1.0 + terrain_x_)*direction_;
+	ty = -offset;
+  	p.x = tx * cos(angle_) - ty *sin(angle_);
+	p.y = tx * sin(angle_) + ty *cos(angle_);
 	p.z = 0.0;
 	region.points.push_back(p);
 
+	//Tercer punto
+	tx = (1.0+terrain_x_)*direction_;
+	ty = terrain_y_ + offset;
+	p.x = tx * cos(angle_) - ty *sin(angle_);
+	p.y = tx * sin(angle_) + ty *cos(angle_);
+	p.z = 0.0;
+	region.points.push_back(p);
 
-  tx = (1.0 + terrain_x_)*direction_;
-  ty = -offset;
-
-  p.x = tx * cos(angle_) - ty *sin(angle_);
-  p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_==1){
-    p.x += terrain_x_;
-    //p.y += terrain_y_;
-  }
-  p.z = 0.0;
-  region.points.push_back(p);
-
-  tx = (1.0+terrain_x_)*direction_;
-  ty = terrain_y_ + offset;
-  p.x = tx * cos(angle_) - ty *sin(angle_);
-  p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_==1){
-    p.x += terrain_x_;
-    //p.y += terrain_y_;
-  }
-  p.z = 0.0;
-  region.points.push_back(p);
-
-
-  tx = -(1.0 )*direction_;
-  ty = terrain_y_ + offset;
-  p.x = tx * cos(angle_) - ty *sin(angle_);
-  p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_==1){
-    ROS_INFO("DIRECTIOn");
-    p.x += terrain_x_;
-    //p.y += terrain_y_;
-  }
-  p.z = 0.0;
-  region.points.push_back(p);
-  
-  tx = -(1.0)*direction_;
-  ty = -offset;
-  p.x = tx * cos(angle_) - ty *sin(angle_);
-  p.y = tx * sin(angle_) + ty *cos(angle_);
-  if (direction_==1){
-    p.x += terrain_x_;
-    //p.y += terrain_y_;
-  }
-  p.z = 0.0;
-  region.points.push_back(p);
-
-  region_publisher_.publish(region);
-
+	//Cuarto punto
+	tx = -(1.0 )*direction_;
+	ty = terrain_y_ + offset;
+	p.x = tx * cos(angle_) - ty *sin(angle_);
+	p.y = tx * sin(angle_) + ty *cos(angle_);
+	p.z = 0.0;
+	region.points.push_back(p);
+	
+	//Primer punto
+	tx = -(1.0)*direction_;
+	ty = -offset;
+	p.x = tx * cos(angle_) - ty *sin(angle_);
+	p.y = tx * sin(angle_) + ty *cos(angle_);
+	p.z = 0.0;
+	region.points.push_back(p);
+	region_publisher_.publish(region);
 }
 
 // Destructor.
