@@ -152,7 +152,7 @@ void MyCommonViz::loadMap(){
 	y_cells_ =  default_npoints_;//ceil(terrain_y_/1);
 	id_maxnumberrows_ = nrows_-1;
 
-	manager_->setFixedFrame(map_frame_.c_str());
+//	manager_->setFixedFrame(map_frame_.c_str());
 
 	ROS_ERROR("Map Loaded");
 	visualizeMap();
