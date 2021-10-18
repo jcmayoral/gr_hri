@@ -326,8 +326,8 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
   //Create New Nodes
   temporal_marker.action = visualization_msgs::Marker::ADD;
   temporal_marker.scale.x = robot_radius_;//divided by three just o see edges
-  temporal_marker.scale.y = robot_radius_/5;
-  temporal_marker.scale.z = 0.25;
+  temporal_marker.scale.y = robot_radius_;
+  temporal_marker.scale.z = robot_radius_;
   temporal_marker.color.g = 0.3;
   temporal_marker.color.a = 0.5;
 
@@ -398,9 +398,18 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
     temporal_marker.id = id;
     tx = vector[id].first;
     ty = vector[id].second;
+
+    /*
+    if(direction_ == 1){
+      temporal_marker.pose.position.x = -tx * cos(angle_) - ty* sin(angle_);
+    }
+    else{
+      temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
+    }
+    */
     temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
-    if (direction_ ==1 )
-      temporal_marker.pose.position.x = -temporal_marker.pose.position.x;
+
+    ROS_ERROR_STREAM (" x " << temporal_marker.pose.position.x);
     temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0.0, 0.0, yaw);
@@ -464,6 +473,7 @@ void MyViz::visualizeRowMap(int row, int& start_node, int& goal_node){
     temporal_edges.text = id_str + "::" + next_id_str;
     tx1 = vector[id+1].first;
     ty1 = vector[id+1].second;
+
     temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
     temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
     temporal_edges.points.push_back(temporal_point);

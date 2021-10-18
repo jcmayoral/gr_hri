@@ -232,6 +232,7 @@ void MyCommonViz::visualizeMap(){
 
 	std::vector<std::pair<float,float> > vector;
 	std::cout << "visualize xcells " << nrows_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
+	ROS_ERROR_STREAM("DIRECTION " << direction_);
 
 	map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_, (terrain_y_)/(default_npoints_-1));
 
@@ -256,9 +257,11 @@ void MyCommonViz::visualizeMap(){
 			temporal_marker.id = id;
 			tx = vector[id].first;
 			ty = vector[id].second;
+			/*
 			if (direction_==1){
 				tx = -tx;
 			}
+			*/
 			temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
 			temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
 
@@ -289,15 +292,19 @@ void MyCommonViz::visualizeMap(){
 			tx1 = vector[id+1].first;
 			ty1 = vector[id+1].second;
 
+			/*
 			if (direction_==1){
 				tx1 = -tx1;
 			}
+			*/
 			temporal_point.x = tx * cos(angle_) - ty* sin(angle_);
 			temporal_point.y = tx * sin(angle_) + ty* cos(angle_);
 
+			/*
 			if (direction_==1){
 				temporal_point.x = - temporal_point.x;
 			}
+			*/
 
 			temporal_edges.points.push_back(temporal_point);
 
@@ -305,9 +312,11 @@ void MyCommonViz::visualizeMap(){
 			temporal_point.y = tx1 * sin(angle_) + ty1* cos(angle_);
 
 			//Marker
+			/*
 			if (direction_==1){
 				temporal_point.x = - temporal_point.x;
 			}
+			*/
 
 			temporal_edges.points.push_back(temporal_point);
 
@@ -353,7 +362,7 @@ void MyCommonViz::publishRegion(){
 	geometry_msgs::Point p;
 	float offset = 2.0;
 
-	tx = -(1.0)*direction_;
+	tx = -(offset)*direction_;
 	ty = -offset;
 	p.x = tx * cos(angle_) - ty *sin(angle_);
 	p.y = tx * sin(angle_) + ty *cos(angle_);
@@ -361,7 +370,7 @@ void MyCommonViz::publishRegion(){
 	region.points.push_back(p);
 	
 	//Segundo punto
-	tx = (1.0 + terrain_x_)*direction_;
+	tx = (terrain_x_)*direction_;
 	ty = -offset;
   	p.x = tx * cos(angle_) - ty *sin(angle_);
 	p.y = tx * sin(angle_) + ty *cos(angle_);
@@ -369,7 +378,7 @@ void MyCommonViz::publishRegion(){
 	region.points.push_back(p);
 
 	//Tercer punto
-	tx = (1.0+terrain_x_)*direction_;
+	tx = (terrain_x_)*direction_;
 	ty = terrain_y_ + offset;
 	p.x = tx * cos(angle_) - ty *sin(angle_);
 	p.y = tx * sin(angle_) + ty *cos(angle_);
@@ -377,7 +386,7 @@ void MyCommonViz::publishRegion(){
 	region.points.push_back(p);
 
 	//Cuarto punto
-	tx = -(1.0 )*direction_;
+	tx = -(offset)*direction_;
 	ty = terrain_y_ + offset;
 	p.x = tx * cos(angle_) - ty *sin(angle_);
 	p.y = tx * sin(angle_) + ty *cos(angle_);
@@ -385,7 +394,7 @@ void MyCommonViz::publishRegion(){
 	region.points.push_back(p);
 	
 	//Primer punto
-	tx = -(1.0)*direction_;
+	tx = -(offset)*direction_;
 	ty = -offset;
 	p.x = tx * cos(angle_) - ty *sin(angle_);
 	p.y = tx * sin(angle_) + ty *cos(angle_);
