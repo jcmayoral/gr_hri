@@ -19,7 +19,7 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   //rviz::ViewController* view_controller;
   //view_controller = new rviz::ViewController();
   //view_controller->lookAt(0,0,0);
-  ////render_panel_->setViewController(view_controller);  
+  ////render_panel_->setViewController(view_controller);
 
 
   controls_layout_ = new QGridLayout();
@@ -29,16 +29,16 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
 
 
   manager_ = new rviz::VisualizationManager( render_panel_ );
-  manager_->setFixedFrame(QString("base_link"));
+  manager_->setFixedFrame(QString("map"));
   auto controller = manager_->getViewManager()->create(QString("rviz/ThirdPersonFollower"));
   //manager_->getViewManager()->setCurrentFrom(controller);
   //manager_->initialize();
-  
+
   //auto* viewmanager = manager_->getViewManager();
   render_panel_->initialize( manager_->getSceneManager(), manager_ );
 
   /*
-  
+
   auto* viewcontroller = new rviz::ViewController();
   viewmanager->setCurrent(viewcontroller,false)
 
@@ -82,7 +82,7 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   ROS_ASSERT( robot_path != NULL );
   robot_path->subProp( "Topic" )->setValue("gr_sbpl_trajectory_generator_node/plan");
   //robot_path->subProp( "Pose Style" )->setValue(2);
-  
+
   rviz::Display* map;
   map = manager_->createDisplay( "rviz/Map", "safety_map", true );
   ROS_ASSERT( map != NULL );
@@ -97,11 +97,11 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   pc = manager_->createDisplay( "rviz/PointCloud2", "velodyne_pc", true );
   ROS_ASSERT( pc != NULL );
   pc->subProp( "Topic" )->setValue("/velodyne_points");
-  
+
   rviz::Display* dect;
   dect = manager_->createDisplay( "jsk_rviz_plugin/BoundingBoxArray", "dect_bb", true );
   ROS_ASSERT( dect != NULL );
-  dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");  
+  dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");
 
 
 
@@ -111,9 +111,9 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
 void MyCommonViz::loadGUI(){
 	ROS_ERROR("LoadGUI");
 	manager_->initialize();
-	manager_->setFixedFrame(QString("base_link"));
+	manager_->setFixedFrame(QString("map"));
 	manager_->startUpdate();
-	manager_->getViewManager()->setCurrentViewControllerType("rviz/ThirdPersonFollower");
+	//manager_->getViewManager()->setCurrentViewControllerType("rviz/ThirdPersonFollower");
 	main_layout_->addLayout( controls_layout_ );
 	main_layout_->addWidget( render_panel_ );
 	setLayout( main_layout_ );
@@ -129,8 +129,8 @@ void MyCommonViz::loadMap(){
 
 	std::string map_id("wish_map_move_base");
 	std::cout << "Loading topomap with map id:  " << storing_id_ << std::endl;
-	
-	
+
+
 	std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
 
 	if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
@@ -152,7 +152,7 @@ void MyCommonViz::loadMap(){
 	y_cells_ =  default_npoints_;//ceil(terrain_y_/1);
 	id_maxnumberrows_ = nrows_-1;
 
-	manager_->setFixedFrame(map_frame_.c_str());
+	//manager_->setFixedFrame(map_frame_.c_str());
 
 	ROS_ERROR("Map Loaded");
 	visualizeMap();
@@ -176,7 +176,7 @@ void MyCommonViz::loadMap(){
 		ROS_DEBUG_STREAM("Got by name: " << *node);
 		load_map_.nodes.push_back(*node);
 		}
-		
+
 		return;
 	}
 	*/
@@ -244,7 +244,7 @@ void MyCommonViz::visualizeMap(){
 	float tx1 = 0.0;
 	float ty1 = 0.0;
 
-	//TODO VISUALIZE ALL and current row 
+	//TODO VISUALIZE ALL and current row
 	for (int current_row = 0; current_row < nrows_; current_row++){
 		int min_index = current_row*y_cells_;
 		int max_index = (current_row*y_cells_) + y_cells_;
@@ -267,7 +267,7 @@ void MyCommonViz::visualizeMap(){
 
 			std::cout << " direction " << temporal_point.x << std::endl;
 
-			
+
 			tf2::Quaternion quat_tf;
 			quat_tf.setRPY(0.0, 0.0, yaw);
 			geometry_msgs::Quaternion quat_msg;
@@ -368,7 +368,7 @@ void MyCommonViz::publishRegion(){
 	p.y = tx * sin(angle_) + ty *cos(angle_);
 	p.z = 0.0;
 	region.points.push_back(p);
-	
+
 	//Segundo punto
 	tx = (terrain_x_)*direction_;
 	ty = -offset;
@@ -392,7 +392,7 @@ void MyCommonViz::publishRegion(){
 	p.y = tx * sin(angle_) + ty *cos(angle_);
 	p.z = 0.0;
 	region.points.push_back(p);
-	
+
 	//Primer punto
 	tx = -(offset)*direction_;
 	ty = -offset;
