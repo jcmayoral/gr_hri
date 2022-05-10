@@ -128,6 +128,7 @@ void MyCommonViz::loadGUI(){
 
 void MyCommonViz::loadMap(){
 	ROS_INFO("LOAD MAP");
+  /*
 
 	std::ifstream in("/tmp/lastmap_id.txt");
 	//out << storing_id_;
@@ -146,6 +147,12 @@ void MyCommonViz::loadMap(){
 	BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
 		load_map_ = *map;
 	}
+  */
+  TopoMapCollection mongo_coll = mongo_connection_.openCollection<navigation_msgs::TopologicalMap>("my_db", "maps");
+  warehouse_ros::Query::Ptr q1 = mongo_coll.createQuery();
+  q1->append("name", "ooof");
+  std::vector<TopoMapMetaPtr> res = mongo_coll.queryList(q1, true);
+  ROS_INFO_STREAM("res size" <<res.size());
 	ROS_WARN_STREAM(load_map_.info);
 
 	angle_ = load_map_.info.angle_offset;
@@ -169,7 +176,6 @@ void MyCommonViz::loadMap(){
 		ROS_INFO("Client Succeded");
 	}
 	return;
-	}
 
 
 	/*
@@ -187,7 +193,7 @@ void MyCommonViz::loadMap(){
 		return;
 	}
 	*/
-	std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
+	//std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
 }
 
 void MyCommonViz::visualizeMap(){

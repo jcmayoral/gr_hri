@@ -120,7 +120,6 @@ MyViz::MyViz( QWidget* parent )
 
 }
 
-
 void MyViz::updateMapFrame(){
   std_srvs::Trigger req;
   if(update_client_.call(req)){
@@ -276,9 +275,9 @@ void MyViz::saveMap(){
   in.close();
 
 
-  TopoMapCollection coll = mongo_connection_.openCollection<navigation_msgs::TopologicalMap>("my_db", "maps");
   ROS_ERROR("OK saving");
-  coll.insert(topo_map, makeMetadata(coll, topo_map, "ooof"));
+  TopoMapCollection mongo_coll = mongo_connection_.openCollection<navigation_msgs::TopologicalMap>("my_db", "maps");
+  mongo_coll.insert(topo_map, makeMetadata(mongo_coll, topo_map, "ooof"));
 
 
   /*
