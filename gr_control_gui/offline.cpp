@@ -217,6 +217,7 @@ void MyViz::updateAfterLoad() {
 }
 
 void MyViz::saveMap(){
+  ROS_INFO("saveMap");
   navigation_msgs::TopologicalMap topo_map;
   navigation_msgs::TopologicalNode topo_node;
   navigation_msgs::Vertex vertex;
@@ -258,7 +259,7 @@ void MyViz::saveMap(){
         topo_node.edges.push_back(edge);
       }
     }
-   
+
     topo_map.nodes.push_back(topo_node);
   }
 
@@ -274,6 +275,13 @@ void MyViz::saveMap(){
   in >> storing_id_;
   in.close();
 
+
+  TopoMapCollection coll = mongo_connection_.openCollection<navigation_msgs::TopologicalMap>("my_db", "maps");
+  ROS_ERROR("OK saving");
+  coll.insert(topo_map, makeMetadata(coll, topo_map, "ooof"));
+
+
+  /*
   std::vector<boost::shared_ptr<navigation_msgs::TopologicalMap > >aaa;
   if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,aaa)) {
     message_store_->updateNamed(map_id, topo_map);
@@ -283,6 +291,7 @@ void MyViz::saveMap(){
     storing_id_ = message_store_->insertNamed(map_id, topo_map);
     std::cout<<"Map \""<<map_id<<"\" inserted with id "<<storing_id_<<std::endl;
   }
+  */
   std::ofstream out("/tmp/lastmap_id.txt");
   out << storing_id_;
   out.close();

@@ -4,12 +4,16 @@ using namespace gr_control_gui;
 
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
                  nrows_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
-                 angle_{0.0}, direction_{-1}, default_npoints_{3}{
+                 angle_{0.0}, direction_{-1}, default_npoints_{3}, mongo_connection_(){
   ROS_INFO("COMMON CONTRUCTOR");
+  mongo_connection_.connect();
+
+  ROS_INFO_STREAM("Connected "<< mongo_connection_.isConnected());
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
   //collection and database as arguments to messageStoreProxy
-  message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
+  //old
+  //message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
 
   main_layout_ = new QVBoxLayout();
   render_panel_ = new rviz::RenderPanel();
@@ -102,6 +106,7 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   dect = manager_->createDisplay( "jsk_rviz_plugin/BoundingBoxArray", "dect_bb", true );
   ROS_ASSERT( dect != NULL );
   dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");
+  ROS_INFO("Ok");
 
 
 
@@ -117,6 +122,8 @@ void MyCommonViz::loadGUI(){
 	main_layout_->addLayout( controls_layout_ );
 	main_layout_->addWidget( render_panel_ );
 	setLayout( main_layout_ );
+  ROS_ERROR("LoadGUI ok");
+
 }
 
 void MyCommonViz::loadMap(){

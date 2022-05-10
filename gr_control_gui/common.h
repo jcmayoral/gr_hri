@@ -32,12 +32,18 @@
 #include <gr_map_utils/UpdateMap.h>
 
 #include <mongodb_store/message_store.h>
+#include <warehouse_ros_mongo/database_connection.h>
+#include <warehouse_ros_mongo/message_collection.h>
+
+
 #include <visualization_msgs/MarkerArray.h>
 #include <navigation_msgs/TopologicalMap.h>
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-
+typedef warehouse_ros::MessageCollection<navigation_msgs::TopologicalMap> TopoMapCollection;
+typedef warehouse_ros::MessageWithMetadata<navigation_msgs::TopologicalMap> TopoMapWithMetadata;
+typedef TopoMapWithMetadata::ConstPtr TopoMapMetaPtr;
 namespace rviz
 {
 class Display;
@@ -61,15 +67,55 @@ namespace gr_control_gui{
       void visualizeMap();
       void publishRegion();
       virtual void updateAfterLoad() {
-        
+
       };
 
+      warehouse_ros::Metadata::Ptr makeMetadata(const TopoMapCollection& coll, const navigation_msgs::TopologicalMap& t, const std::string& n)
+      {
+        warehouse_ros::Metadata::Ptr meta = coll.createMetadata();
+        meta->append("map_id", t.map_id);
+        meta->append("map_", t.map_id);
+        meta->append("name", n);
 
-      protected Q_SLOTS:
-        void loadMap();
+        /*
+        int ncount = 0;
+        for (auto n: t.nodes){
+          meta->append("node_name_" + std::to_string(ncount), n.name);
+          meta->append("node_map_"+ std::to_string(ncount), n.map);
+          meta->append("node_x_"+ std::to_string(ncount), n.pose.position.x);
+          meta->append("node_y_"+ std::to_string(ncount), n.pose.position.y);
+          meta->append("node_z_"+ std::to_string(ncount), n.pose.position.z);
+
+          meta->append("node_ox_"+ std::to_string(ncount), n.pose.orientation.x);
+          meta->append("node_oy_"+ std::to_string(ncount), n.pose.orientation.y);
+          meta->append("node_oz_"+ std::to_string(ncount), n.pose.orientation.z);
+          meta->append("node_ow_"+ std::to_string(ncount), n.pose.orientation.w);
+
+          int nverts =0;
+          for (auto v: n.verts){
+            meta->append("node_"+ std::to_string(ncount)+"_vx_"+std::to_string(nverts), v.x);
+            meta->append("node_"+ std::to_string(ncount)+"_vy_"+std::to_string(nverts), v.y);
+            nverts++;
+          }
+
+          int nedges =0;
+          for (auto v: n.verts){
+            meta->append("node_"+ std::to_string(ncount)+"_x_"+std::to_string(nverts), v.x);
+            meta->append("node_"+ std::to_string(ncount)+"_x_"+std::to_string(nverts), v.y);
+            nedges++;
+          }
 
 
-      
+          ncount++;
+        }
+        */
+        return meta;
+      }
+      //warehouse_ros_mongo
+      warehouse_ros_mongo::MongoDatabaseConnection mongo_connection_;
+
+    protected Q_SLOTS:
+      void loadMap();
     protected:
       NodeMap node_map_;
       std::string storing_id_;
@@ -105,6 +151,8 @@ namespace gr_control_gui{
       float angle_;
       int direction_;
 
+
+
   };
 };
-#endif 
+#endif

@@ -285,6 +285,7 @@ bool MyViz::executeCycle(int cycle){
       return false;
     }
   }
+  return false;
 }
 
 bool MyViz::executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::Response &res ){

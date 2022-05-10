@@ -51,7 +51,7 @@ int main(int argc, char **argv)
   MyViz* myviz = new MyViz();
   myviz->loadGUI();
   myviz->show();
-
+  ROS_INFO("after show");
   app.exec();
 
   delete myviz;
