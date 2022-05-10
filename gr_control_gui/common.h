@@ -70,14 +70,15 @@ namespace gr_control_gui{
 
       };
 
-      warehouse_ros::Metadata::Ptr makeMetadata(const TopoMapCollection& coll, const navigation_msgs::TopologicalMap& t, const std::string& n)
+      warehouse_ros::Metadata::Ptr makeMetadata(const TopoMapCollection& coll, const navigation_msgs::TopologicalMap& t, const std::string& name)
       {
         warehouse_ros::Metadata::Ptr meta = coll.createMetadata();
         meta->append("map_id", t.map_id);
-        meta->append("map_", t.map_id);
-        meta->append("name", n);
+        meta->append("frame_id", t.header.frame_id);
+        meta->append("name", name);
+        int nn = t.nodes.size();
+        meta->append("nsize", nn);
 
-        /*
         int ncount = 0;
         for (auto n: t.nodes){
           meta->append("node_name_" + std::to_string(ncount), n.name);
@@ -91,6 +92,10 @@ namespace gr_control_gui{
           meta->append("node_oz_"+ std::to_string(ncount), n.pose.orientation.z);
           meta->append("node_ow_"+ std::to_string(ncount), n.pose.orientation.w);
 
+          int nsize= n.verts.size();
+          std::cout << "nverts " << nsize << std::endl;
+          meta->append("nverts_"+ std::to_string(ncount), nsize);
+
           int nverts =0;
           for (auto v: n.verts){
             meta->append("node_"+ std::to_string(ncount)+"_vx_"+std::to_string(nverts), v.x);
@@ -98,21 +103,31 @@ namespace gr_control_gui{
             nverts++;
           }
 
-          int nedges =0;
-          for (auto v: n.verts){
-            meta->append("node_"+ std::to_string(ncount)+"_x_"+std::to_string(nverts), v.x);
-            meta->append("node_"+ std::to_string(ncount)+"_x_"+std::to_string(nverts), v.y);
+          int n_edges = n.edges.size();
+          int nedges = 0;
+          meta->append("nedges_"+ std::to_string(ncount), n_edges);
+
+          for (auto e: n.edges){
+            meta->append("node_"+ std::to_string(ncount)+"_ex_"+std::to_string(nedges), e.edge_id);
+            meta->append("node_"+ std::to_string(ncount)+"_ey_"+std::to_string(nedges), e.node);
             nedges++;
           }
 
 
           ncount++;
         }
-        */
+        meta->append("info_mapframe", t.info.map_frame);
+        meta->append("info_sizex", t.info.sizex);
+        meta->append("info_sizey", t.info.sizey);
+        meta->append("info_rrs", t.info.robot_radius);
+        meta->append("info_direction", t.info.direction);
+        meta->append("info_angleoffset", t.info.angle_offset);
+
         return meta;
       }
       //warehouse_ros_mongo
       warehouse_ros_mongo::MongoDatabaseConnection mongo_connection_;
+      void parseMessage(navigation_msgs::TopologicalMap& map, TopoMapMetaPtr msg);
 
     protected Q_SLOTS:
       void loadMap();

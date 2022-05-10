@@ -277,7 +277,7 @@ void MyViz::saveMap(){
 
   ROS_ERROR("OK saving");
   TopoMapCollection mongo_coll = mongo_connection_.openCollection<navigation_msgs::TopologicalMap>("my_db", "maps");
-  mongo_coll.insert(topo_map, makeMetadata(mongo_coll, topo_map, "ooof"));
+  mongo_coll.insert(topo_map, makeMetadata(mongo_coll, topo_map, "wish_map4"));
 
 
   /*
