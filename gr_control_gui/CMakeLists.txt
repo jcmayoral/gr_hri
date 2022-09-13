@@ -54,6 +54,11 @@ qt5_use_modules(common_gui Widgets)
 qt5_use_modules(common_gui Core)
 target_link_libraries(common_gui ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 
+add_library(app_online app_online.cpp)
+qt5_use_modules(app_online Widgets)
+qt5_use_modules(app_online Core)
+target_link_libraries(app_online ${catkin_LIBRARIES} ${Qt5Widgets_LIBRARIES})
+
 add_executable(online main_online.cpp)
 target_link_libraries(online online_gui common_gui )
 
@@ -62,6 +67,9 @@ target_link_libraries(offline offline_gui common_gui)
 
 add_executable(common main_common.cpp)
 target_link_libraries(common common_gui)
+
+add_executable(app_online_node app_online_node.cpp)
+target_link_libraries(app_online_node app_online common_gui)
 
 # Instalv
 install(TARGETS online offline common DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
