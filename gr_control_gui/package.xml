@@ -1,6 +1,6 @@
 <package>
   <name>gr_control_gui</name>
-  <version>0.15.2</version>
+  <version>0.16.0</version>
   <description>
      Based on the librviz_tutorial from William Woodall. This package allows an interaction to the topological map.
   </description>
@@ -25,6 +25,7 @@
   <build_depend>std_srvs</build_depend>
   <build_depend>move_base_msgs</build_depend>
   <build_depend>warehouse_ros_mongo</build_depend>
+  <build_depend>gr_action_msgs</build_depend>
 
   <run_depend>libqt5-core</run_depend>
   <run_depend>libqt5-gui</run_depend>
@@ -44,5 +45,6 @@
   <run_depend>std_srvs</run_depend>
   <run_depend>move_base_msgs</run_depend>
   <run_depend>warehouse_ros_mongo</run_depend>
+  <run_depend>gr_action_msgs</run_depend>
 
 </package>

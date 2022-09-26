@@ -6,7 +6,7 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS rviz roscpp visualization_msgs
                     geometry_msgs mongodb_store navigation_msgs
                     tf2_geometry_msgs std_msgs gr_map_utils nav_msgs
-                    move_base_msgs  warehouse_ros_mongo
+                    move_base_msgs  warehouse_ros_mongo 
                     gr_action_msgs actionlib)
 
 
@@ -28,6 +28,7 @@ catkin_package(
       actionlib
       move_base_msgs
       warehouse_ros_mongo
+      gr_action_msgs
 )
 
 link_directories(${catkin_LIBRARY_DIRS})

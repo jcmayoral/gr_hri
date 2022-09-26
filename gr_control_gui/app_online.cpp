@@ -9,6 +9,9 @@ AppOnline::AppOnline( QWidget* parent )
    last_know_completed_row_id_{0}
 {
   ros::NodeHandle local_nh;
+
+  gr_human_intervention_client_ = local_nh.serviceClient<std_srvs::Trigger>("/gr_human_intervention/reset");
+
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
   reset_publisher_ = local_nh.advertise<std_msgs::Time>("update_map", 1);
 
@@ -94,6 +97,15 @@ AppOnline::AppOnline( QWidget* parent )
   controls_layout->addWidget( new QLabel("Skip N ViaPoints"), 5, 2 );
   controls_layout->addWidget( span_spinbox_, 5, 3 );
 
+
+  status_ = new QLabel();
+  status_->setText("Waiting for updates");
+  controls_layout->addWidget( new QLabel("State"), 6, 0 );
+  QPushButton* hi_button = new QPushButton ("Human Intervention Done");
+  controls_layout->addWidget( hi_button, 6, 1 );
+
+  controls_layout->addWidget( new QLabel(""), 6, 0 );
+
   // Construct and lay out render panel.
   main_layout_->addLayout( controls_layout );
 
@@ -103,6 +115,7 @@ AppOnline::AppOnline( QWidget* parent )
   // Make signal/slot connections.
   connect( execute_map, SIGNAL( released( )), this, SLOT( executeTopoMap( )));
   connect( stop_map, SIGNAL( released( )), this, SLOT( stopExecution( )));
+  connect( hi_button, SIGNAL( released( )), this, SLOT( resetHumanIntervention( )));
 
   connect( column_spinbox, SIGNAL(valueChanged(int)), this, SLOT(setDesiredRow(int)));
   connect( mode_selector_, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setMode(QListWidgetItem*)));
@@ -125,7 +138,10 @@ AppOnline::AppOnline( QWidget* parent )
 
 void AppOnline::feedbackCb(const gr_action_msgs::GRNavigationFeedbackConstPtr& feedback)
 {
-  ROS_INFO_STREAM(*feedback);
+  //ROS_ERROR("FEEDBACK");
+  //row_exec -> setText(QString::number(feedback->executing_time.data));
+  status_->setText(QString(feedback->safety_msg.data.c_str()));
+  //ROS_INFO_STREAM(*feedback);
 }
 
 
@@ -222,7 +238,7 @@ void AppOnline::startExecution(){
 
 bool AppOnline::executeCycle(int cycle){
   current_row_ = cycle;
-  ROS_INFO_STREAM("current row "<< cycle);
+  //ROS_INFO_STREAM("current row "<< cycle);
   std::string mystr = std::to_string(cycle) + " of " + std::to_string(id_maxnumberrows_);
   row_exec -> setText( QString(mystr.c_str()));
 
@@ -257,6 +273,13 @@ bool AppOnline::executeCycle(int cycle){
   bool finished_before_timeout = gr_action_client_.waitForResult();
   actionlib::SimpleClientGoalState state = gr_action_client_.getState();
   auto result = gr_action_client_.getResult();
+
+  status_->setText(QString(result->safety_msg.data.c_str()));
+  //ROS_INFO_STREAM(*result);
+  if (result->intervention){
+    resume_execution_=true;
+    checkbox_->setChecked(true);
+  }
 
   ROS_INFO("Action finished: %s",state.toString().c_str());
   if (state == actionlib::SimpleClientGoalState::StateEnum::ABORTED ||
@@ -502,4 +525,10 @@ void AppOnline::visualizeRowMap(int row, int& start_node, int& goal_node){
 
 void AppOnline::updateAfterLoad() {
   std::cout << "UPDate AfterLoad on line " << std::endl;
+}
+
+void AppOnline::resetHumanIntervention() {
+  std::cout << "Reset Human Intervention " << std::endl;
+  std_srvs::Trigger srv;
+  gr_human_intervention_client_.call(srv);
 }

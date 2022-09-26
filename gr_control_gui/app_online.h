@@ -20,6 +20,7 @@
 
 #include <QCheckBox>
 #include <std_srvs/SetBool.h>
+#include <std_srvs/Trigger.h>
 
 namespace gr_control_gui{
   typedef std::map<std::string, geometry_msgs::Pose> NodeMap;
@@ -41,6 +42,8 @@ namespace gr_control_gui{
       void timetogoCB(const std_msgs::Float32ConstPtr time2go);
       bool executeCycle(int cycle);
       void startExecution();
+      void resetHumanIntervention();
+
       void visualizeRowMap(int row, int& start_node, int& goal_node);
       void setMode(QListWidgetItem* item);
       void setTask(QListWidgetItem* item);
@@ -61,6 +64,7 @@ namespace gr_control_gui{
       ros::Publisher reset_publisher_;
       //ros::ServiceClient update_client_;
       MyClient gr_action_client_;
+      ros::ServiceClient gr_human_intervention_client_; 
 
       QLabel* row_exec;
       //ros::Subscriber time_to_go_sub_;
@@ -79,6 +83,8 @@ namespace gr_control_gui{
       navigation_msgs::TopoExecutionStatus execution_status_;
       bool cancel_goal_;
 
+      QLabel* status_;
+
 
       //Resume execution
       int last_know_completed_row_id_;
@@ -88,4 +94,4 @@ namespace gr_control_gui{
       ros::ServiceServer remote_exec_server_;
   };
 };
-#endif 
+#endif
