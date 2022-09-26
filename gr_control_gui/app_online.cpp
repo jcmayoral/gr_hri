@@ -101,10 +101,10 @@ AppOnline::AppOnline( QWidget* parent )
   status_ = new QLabel();
   status_->setText("Waiting for updates");
   controls_layout->addWidget( new QLabel("State"), 6, 0 );
-  QPushButton* hi_button = new QPushButton ("Human Intervention Done");
-  controls_layout->addWidget( hi_button, 6, 1 );
-
   controls_layout->addWidget( new QLabel(""), 6, 0 );
+
+  QPushButton* hi_button = new QPushButton ("Human Intervention Done");
+  controls_layout->addWidget( hi_button, 7, 1 );
 
   // Construct and lay out render panel.
   main_layout_->addLayout( controls_layout );
