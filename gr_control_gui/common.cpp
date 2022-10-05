@@ -78,40 +78,17 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
 }
 
 void MyCommonViz::loadGUI(){
-	ROS_ERROR("LoadGUI");
 	manager_->initialize();
 	manager_->setFixedFrame(QString("map"));
 	manager_->startUpdate();
 	//manager_->getViewManager()->setCurrentViewControllerType("rviz/ThirdPersonFollower");
 	main_layout_->addLayout( controls_layout_ );
-	main_layout_->addWidget( render_panel_ );
+	
+	//main_layout_->addWidget( render_panel_ );
 	setLayout( main_layout_ );
-  ROS_ERROR("LoadGUI ok");
-
 }
 
 void MyCommonViz::loadMap(){
-	ROS_INFO("LOAD MAP");
-  /*
-
-	std::ifstream in("/tmp/lastmap_id.txt");
-	//out << storing_id_;
-	in >> storing_id_;
-	in.close();
-
-	std::string map_id("wish_map_move_base");
-	std::cout << "Loading topomap with map id:  " << storing_id_ << std::endl;
-
-
-	std::vector< boost::shared_ptr<navigation_msgs::TopologicalMap> > results_map;
-
-	if(message_store_->queryNamed<navigation_msgs::TopologicalMap>(map_id,results_map)){
-	//message_store_->updateNamed(map_id, topo_map);
-	//std::cout << results_map.size() << std::endl;
-	BOOST_FOREACH( boost::shared_ptr<  navigation_msgs::TopologicalMap> map,  results_map){
-		load_map_ = *map;
-	}
-  */
   TopoMapCollection mongo_coll = mongo_connection_.openCollection<navigation_msgs::TopologicalMap>("my_db", "maps");
   warehouse_ros::Query::Ptr q1 = mongo_coll.createQuery();
   q1->append("name", "wish_map4");
@@ -133,9 +110,6 @@ void MyCommonViz::loadMap(){
 	y_cells_ =  default_npoints_;//ceil(terrain_y_/1);
 	id_maxnumberrows_ = nrows_-1;
 
-	//manager_->setFixedFrame(map_frame_.c_str());
-
-	ROS_ERROR("Map Loaded");
 	visualizeMap();
 	updateAfterLoad();
 	gr_map_utils::UpdateMap req;
@@ -143,23 +117,6 @@ void MyCommonViz::loadMap(){
 		ROS_INFO("Client Succeded");
 	}
 
-
-	/*
-		std::vector< boost::shared_ptr<navigation_msgs::TopologicalNode> > results_node;
-	//On this version the map is stored by NAME Not anymore nodes stored
-	ROS_WARN("QUERY NODES");
-	if(message_store_->queryNamed<navigation_msgs::TopologicalNode>(map_id, results_node, false)) {
-		load_map_.nodes.clear();
-		navigation_msgs::TopologicalNode node;
-		BOOST_FOREACH( boost::shared_ptr<navigation_msgs::TopologicalNode> node,  results_node){
-		ROS_DEBUG_STREAM("Got by name: " << *node);
-		load_map_.nodes.push_back(*node);
-		}
-
-		return;
-	}
-	*/
-	//std::cout<<"Map aaaaa "<<map_id<< " failed to load with id "<<storing_id_<<std::endl;
 }
 
 void MyCommonViz::parseMessage(navigation_msgs::TopologicalMap& map, TopoMapMetaPtr msg){
@@ -168,11 +125,9 @@ void MyCommonViz::parseMessage(navigation_msgs::TopologicalMap& map, TopoMapMeta
   int nnodes = msg->lookupInt("nsize");
 
   for (auto i=0; i<nnodes;i++){
-    ROS_INFO("0");
     navigation_msgs::TopologicalNode node;
     node.name =  msg->lookupString("node_name_" + std::to_string(i));
     node.map =  msg->lookupString("node_map_" + std::to_string(i));
-    ROS_INFO("1");
     node.pose.position.x = msg->lookupDouble("node_x_" + std::to_string(i));
     node.pose.position.y = msg->lookupDouble("node_y_" + std::to_string(i));
     node.pose.position.z = msg->lookupDouble("node_z_" + std::to_string(i));
@@ -180,7 +135,7 @@ void MyCommonViz::parseMessage(navigation_msgs::TopologicalMap& map, TopoMapMeta
     node.pose.orientation.y = msg->lookupDouble("node_oy_" + std::to_string(i));
     node.pose.orientation.z = msg->lookupDouble("node_oz_" + std::to_string(i));
     node.pose.orientation.w = msg->lookupDouble("node_ow_" + std::to_string(i));
-    ROS_INFO("2");
+
     int nverts = msg->lookupInt("nverts_"+ std::to_string(i));
 
     for (auto j=0; j<nverts; j++){
@@ -208,10 +163,6 @@ void MyCommonViz::parseMessage(navigation_msgs::TopologicalMap& map, TopoMapMeta
   map.info.robot_radius=msg->lookupDouble("info_rrs");
   map.info.direction=msg->lookupInt("info_direction");
   map.info.angle_offset=msg->lookupDouble("info_angleoffset");
-
-  ROS_INFO_STREAM(map);
-
-
 
 }
 
@@ -264,9 +215,6 @@ void MyCommonViz::visualizeMap(){
 
 
 	std::vector<std::pair<float,float> > vector;
-	std::cout << "visualize xcells " << nrows_ << " y_cells " << y_cells_ << " ROBOT RADIUS " << robot_radius_ << std::endl;
-	ROS_ERROR_STREAM("DIRECTION " << direction_);
-
 	map_utils_->calculateCenters(vector,  nrows_, y_cells_, 2*robot_radius_*direction_, (terrain_y_)/(default_npoints_-1));
 
 	int id, index_1, index_2 = 0;
@@ -297,9 +245,6 @@ void MyCommonViz::visualizeMap(){
 			*/
 			temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
 			temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
-
-			std::cout << " direction " << temporal_point.x << std::endl;
-
 
 			tf2::Quaternion quat_tf;
 			quat_tf.setRPY(0.0, 0.0, yaw);
