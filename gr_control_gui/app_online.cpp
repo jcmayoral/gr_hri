@@ -13,8 +13,8 @@ AppOnline::AppOnline( QWidget* parent )
   gr_human_intervention_client_ = local_nh.serviceClient<std_srvs::Trigger>("/gr_human_intervention/reset");
 
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
-  reset_publisher_ = local_nh.advertise<std_msgs::Time>("update_map", 1);
-
+  start_publisher_ = local_nh.advertise<std_msgs::Time>("start", 1);
+  stop_publisher_ = local_nh.advertise<std_msgs::Time>("stop", 1);
 
   rviz::Display* marker_display;
   marker_display = manager_->createDisplay( "rviz/MarkerArray", "current_topological_map", true );
@@ -165,6 +165,7 @@ void AppOnline::stopExecution(){
   cancel_goal_ = true;
   //if gui is terminated .. better to cancel all goals
   gr_action_client_.cancelAllGoals();
+  stop_publisher_.publish(std_msgs::Time());
 }
 
 void AppOnline::timetogoCB(const std_msgs::Float32ConstPtr time2go){
@@ -178,7 +179,8 @@ AppOnline::~AppOnline()
   //time_to_go_sub_.shutdown();
   online_map_publisher_.shutdown();
   //region_publisher_.shutdown();
-  reset_publisher_.shutdown();
+  start_publisher_.shutdown();
+  stop_publisher_.shutdown();
   //update_client_.shutdown();
 
 }
@@ -212,6 +214,7 @@ void AppOnline::setDesiredRow(int row){
 }
 
 void AppOnline::executeTopoMap(){
+  start_publisher_.publish(std_msgs::Time());
   cancel_goal_ = false;
   //std::thread worker_thread();
   t1 = new std::thread(&AppOnline::startExecution, this);
@@ -234,7 +237,7 @@ void AppOnline::startExecution(){
   else{
     ROS_ERROR("Something failed worked");
   }
-
+  stop_publisher_.publish(std_msgs::Time());
   isexecuting_ = false;
 }
 
@@ -324,9 +327,12 @@ bool AppOnline::executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::
       executeTopoMap();
 
       isexecuting_ = true;
+      /*
+      //locks gui 
       while (isexecuting_){
         usleep(100000);
       };
+      */
   }
   else{
     ROS_ERROR("Stop Execution");

@@ -61,7 +61,8 @@ namespace gr_control_gui{
       visualization_msgs::MarkerArray online_marker_array_;
 
       ros::Publisher online_map_publisher_;
-      ros::Publisher reset_publisher_;
+      ros::Publisher start_publisher_;
+      ros::Publisher stop_publisher_;
       //ros::ServiceClient update_client_;
       MyClient gr_action_client_;
       ros::ServiceClient gr_human_intervention_client_; 
