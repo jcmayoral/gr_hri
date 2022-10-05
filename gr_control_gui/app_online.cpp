@@ -6,7 +6,7 @@ using namespace gr_control_gui;
 AppOnline::AppOnline( QWidget* parent )
   : MyCommonViz( parent ), current_row_(1), task_{"CUT"},
    gr_action_client_("gr_simple_manager", true), nviapoints_{9}, mode_{1}, span_{1}, cancel_goal_{false},
-   last_know_completed_row_id_{0}
+   last_know_completed_row_id_{0}, resume_execution_{false}, isexecuting_{false}
 {
   ros::NodeHandle local_nh;
 
@@ -234,6 +234,8 @@ void AppOnline::startExecution(){
   else{
     ROS_ERROR("Something failed worked");
   }
+
+  isexecuting_ = false;
 }
 
 bool AppOnline::executeCycle(int cycle){
@@ -320,11 +322,18 @@ bool AppOnline::executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::
       ROS_ERROR("Start Execution");
       loadMap();
       executeTopoMap();
+
+      isexecuting_ = true;
+      while (isexecuting_){
+        usleep(100000);
+      };
   }
   else{
     ROS_ERROR("Stop Execution");
     stopExecution();
   }
+
+  res.success = true;
   return true;
 }
 

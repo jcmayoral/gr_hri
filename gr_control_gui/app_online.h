@@ -92,6 +92,9 @@ namespace gr_control_gui{
 
       //Execute remotely
       ros::ServiceServer remote_exec_server_;
+      std::atomic<bool> isexecuting_;
+
+
   };
 };
 #endif
