@@ -17,9 +17,10 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   controls_layout_->addWidget( load_topological_map, 0, 0 );
   connect( load_topological_map, SIGNAL( released( )), this, SLOT( loadMap()));
 
+  manager_ = new rviz::VisualizationManager( render_panel_ );
+
   return;
 
-  manager_ = new rviz::VisualizationManager( render_panel_ );
   manager_->setFixedFrame(QString("map"));
 
   
