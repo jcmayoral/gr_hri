@@ -5,60 +5,26 @@ using namespace gr_control_gui;
 MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_radius_(1.5),
                  nrows_{1}, y_cells_{1}, terrain_x_(1.0), terrain_y_(1.0), id_maxnumberrows_(1),
                  angle_{0.0}, direction_{-1}, default_npoints_{3}, mongo_connection_(){
-  ROS_INFO("COMMON CONTRUCTOR");
   mongo_connection_.connect();
-
   ROS_INFO_STREAM("Connected "<< mongo_connection_.isConnected());
   map_publisher_ = nh_.advertise<visualization_msgs::MarkerArray>("full_topological_map", 1 );
   region_publisher_ = nh_.advertise<visualization_msgs::Marker>("region", 1 );
-  //collection and database as arguments to messageStoreProxy
-  //old
-  //message_store_ = new mongodb_store::MessageStoreProxy(nh_,"topological_maps","message_store");
 
   main_layout_ = new QVBoxLayout();
   render_panel_ = new rviz::RenderPanel();
-
-  //auto view_controller = render_panel_->getViewController();
-
-  //rviz::ViewController* view_controller;
-  //view_controller = new rviz::ViewController();
-  //view_controller->lookAt(0,0,0);
-  ////render_panel_->setViewController(view_controller);
-
-
   controls_layout_ = new QGridLayout();
   QPushButton* load_topological_map = new QPushButton ("Load Map");
   controls_layout_->addWidget( load_topological_map, 0, 0 );
   connect( load_topological_map, SIGNAL( released( )), this, SLOT( loadMap()));
 
+  return;
 
   manager_ = new rviz::VisualizationManager( render_panel_ );
   manager_->setFixedFrame(QString("map"));
+
+  
   auto controller = manager_->getViewManager()->create(QString("rviz/ThirdPersonFollower"));
-  //manager_->getViewManager()->setCurrentFrom(controller);
-  //manager_->initialize();
-
-  //auto* viewmanager = manager_->getViewManager();
   render_panel_->initialize( manager_->getSceneManager(), manager_ );
-
-  /*
-
-  auto* viewcontroller = new rviz::ViewController();
-  viewmanager->setCurrent(viewcontroller,false)
-
-
-  //rviz::ViewController* view = viewmanager->getCurrent();
-
-
-  //manager_->getViewManager()->getCurrent()->subProp("Distance")->setValue("20");
-
-  //rviz::ViewController* view = new rviz::OrbitViewController();
-  //view->initialize(manager_);
-  //render_panel_->setViewController(view);
-
-  //Q00String class_id = "rviz/Orbit";
-  //manager_->getViewManager()->setCurrentViewControllerType(class_id);
-  */
 
   // Create Subscribers
   rviz::Display* marker_display;
@@ -108,9 +74,6 @@ MyCommonViz::MyCommonViz( QWidget* parent): QWidget( parent ), nh_{},  robot_rad
   dect->subProp( "Topic" )->setValue("/detection/bounding_boxes");
   ROS_INFO("Ok");
 
-
-
-//manager_->setFixedFrame("map");
 }
 
 void MyCommonViz::loadGUI(){
