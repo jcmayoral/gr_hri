@@ -10,7 +10,7 @@ AppOnline::AppOnline( QWidget* parent )
 {
   ros::NodeHandle local_nh;
 
-  gr_human_intervention_client_ = local_nh.serviceClient<std_srvs::Trigger>("/gr_human_intervention/reset");
+  //gr_human_intervention_client_ = local_nh.serviceClient<std_srvs::Trigger>("/gr_human_intervention/reset");
 
   online_map_publisher_ = local_nh.advertise<visualization_msgs::MarkerArray>("current_topological_map", 1 );
   start_publisher_ = local_nh.advertise<std_msgs::Time>("start", 1);
@@ -223,20 +223,23 @@ void AppOnline::executeTopoMap(){
 }
 
 void AppOnline::startExecution(){
-  int startpoint = 0;
+  /*
   if (resume_execution_){
+    ROS_INFO("RESUME ");
     startpoint = last_know_completed_row_id_ + 1;
   }
   else{
     last_know_completed_row_id_ = 0;
   }
+  */
 
-  if (executeCycle(startpoint)){
+  if (executeCycle(last_know_completed_row_id_)){
     ROS_INFO("Motion worked");
   }
   else{
     ROS_ERROR("Something failed worked");
   }
+  last_know_completed_row_id_ = 0;
   stop_publisher_.publish(std_msgs::Time());
   isexecuting_ = false;
 }
@@ -336,7 +339,7 @@ bool AppOnline::executeRun(std_srvs::SetBool::Request  &req, std_srvs::SetBool::
   }
   else{
     ROS_ERROR("Stop Execution");
-    stopExecution();
+    //stopExecution();
   }
 
   res.success = true;
@@ -450,7 +453,6 @@ void AppOnline::visualizeRowMap(int row, int& start_node, int& goal_node){
     */
     temporal_marker.pose.position.x = tx * cos(angle_) - ty* sin(angle_);
 
-    ROS_ERROR_STREAM (" x " << temporal_marker.pose.position.x);
     temporal_marker.pose.position.y = tx * sin(angle_) + ty* cos(angle_);
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0.0, 0.0, yaw);

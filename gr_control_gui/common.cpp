@@ -383,7 +383,6 @@ void MyCommonViz::publishRegion(){
 
 // Destructor.
 MyCommonViz::~MyCommonViz(){
-  ROS_ERROR("D common init");
   map_publisher_.shutdown();
   region_publisher_.shutdown();
   nh_.shutdown();
@@ -393,5 +392,4 @@ MyCommonViz::~MyCommonViz(){
   delete render_panel_;
   delete message_store_;
   delete manager_;
-  ROS_ERROR("D common end");
 }

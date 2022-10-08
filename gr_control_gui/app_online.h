@@ -85,7 +85,7 @@ namespace gr_control_gui{
       bool cancel_goal_;
 
       QLabel* status_;
-
+      std::mutex mtx;
 
       //Resume execution
       int last_know_completed_row_id_;
